@@ -18,5 +18,5 @@ RUN chown -R www-data:www-data /var/www/html/
 RUN chmod 755 /var/www/html/uploads/
 RUN chmod 755 /var/www/html/application/config/
 RUN chmod 755 /var/www/html/application/config/config.php
-RUN chmod 755 /var/www/html/application/config/app-config-sample.php
+RUN chmod 755 /var/www/html/application/config/app-config.php
 RUN chmod 755 /var/www/html/temp/
