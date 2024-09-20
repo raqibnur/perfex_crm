@@ -11,7 +11,7 @@ RUN docker-php-ext-configure imap --with-kerberos --with-imap-ssl && \
 RUN docker-php-ext-install mysqli gd zip
 
 RUN a2enmod rewrite
-COPY perfexcrm/ /var/www/html/
+COPY ./ /var/www/html/
 
 RUN chown -R www-data:www-data /var/www/html/
 
