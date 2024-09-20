@@ -153,13 +153,7 @@ class Stripe_gateway extends App_gateway
                         'InvoiceHash' => $data['invoice']->hash,
                         'payment_attempt_reference' => $data['payment_attempt']->reference,
                 ],
-                  'setup_future_usage' => 'off_session'
               ],
-            'payment_method_options' => [
-                'card' => [
-                    'setup_future_usage' => 'off_session'
-                ]
-            ]
         ];
 
         if ($data['invoice']->client->stripe_id) {

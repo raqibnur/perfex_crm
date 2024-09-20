@@ -120,7 +120,6 @@ $(function () {
 
   if ($("#calendar").length) {
     var settings = {
-      locale: app.locale,
       headerToolbar: {
         left: "prev,next today",
         center: "title",

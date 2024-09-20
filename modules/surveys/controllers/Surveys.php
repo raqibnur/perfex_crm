@@ -14,7 +14,7 @@ class Surveys extends AdminController
     /* List all surveys */
     public function index()
     {
-        if (staff_cant('view', 'surveys')) {
+        if (!has_permission('surveys', '', 'view')) {
             access_denied('surveys');
         }
         if ($this->input->is_ajax_request()) {
@@ -27,7 +27,7 @@ class Surveys extends AdminController
     /* Add new survey or update existing */
     public function survey($id = '')
     {
-        if (staff_cant('view', 'surveys')) {
+        if (!has_permission('surveys', '', 'view')) {
             access_denied('surveys');
         }
         if ($this->input->post()) {
@@ -36,7 +36,7 @@ class Surveys extends AdminController
             $data['viewdescription'] = html_purify($this->input->post('viewdescription', false));
 
             if ($id == '') {
-                if (staff_cant('create', 'surveys')) {
+                if (!has_permission('surveys', '', 'create')) {
                     access_denied('surveys');
                 }
                 $id = $this->surveys_model->add($data);
@@ -45,7 +45,7 @@ class Surveys extends AdminController
                     redirect(admin_url('surveys/survey/' . $id));
                 }
             } else {
-                if (staff_cant('edit', 'surveys')) {
+                if (!has_permission('surveys', '', 'edit')) {
                     access_denied('surveys');
                 }
                 $success = $this->surveys_model->update($data, $id);
@@ -94,7 +94,7 @@ class Surveys extends AdminController
     /* Send survey to mail list */
     public function send($surveyid)
     {
-        if (staff_cant('edit', 'surveys')) {
+        if (!has_permission('surveys', '', 'edit')) {
             access_denied('surveys');
         }
         if (!$surveyid) {
@@ -255,11 +255,11 @@ class Surveys extends AdminController
 
     public function remove_survey_send($id)
     {
-        if (staff_cant('delete', 'surveys')) {
+        if (!has_permission('surveys', '', 'delete')) {
             access_denied('Surveys');
         }
         $this->surveys_model->remove_survey_send($id);
-        redirect(previous_url() ?: $_SERVER['HTTP_REFERER']);
+        redirect($_SERVER['HTTP_REFERER']);
     }
 
     /* View survey participating results*/
@@ -279,7 +279,7 @@ class Surveys extends AdminController
     /* Delete survey from database */
     public function delete($id)
     {
-        if (staff_cant('delete', 'surveys')) {
+        if (!has_permission('surveys', '', 'delete')) {
             access_denied('surveys');
         }
         if (!$id) {
@@ -298,7 +298,7 @@ class Surveys extends AdminController
     /* Remove survey question */
     public function remove_question($questionid)
     {
-        if (staff_cant('edit', 'surveys')) {
+        if (!has_permission('surveys', '', 'edit')) {
             echo json_encode([
                 'success' => false,
                 'message' => _l('access_denied'),
@@ -315,7 +315,7 @@ class Surveys extends AdminController
     /* Removes survey checkbox/radio description*/
     public function remove_box_description($questionboxdescriptionid)
     {
-        if (staff_cant('edit', 'surveys')) {
+        if (!has_permission('surveys', '', 'edit')) {
             echo json_encode([
                 'success' => false,
                 'message' => _l('access_denied'),
@@ -332,7 +332,7 @@ class Surveys extends AdminController
     /* Add box description */
     public function add_box_description($questionid, $boxid)
     {
-        if (staff_cant('edit', 'surveys')) {
+        if (!has_permission('surveys', '', 'edit')) {
             echo json_encode([
                 'success' => false,
                 'message' => _l('access_denied'),
@@ -350,7 +350,7 @@ class Surveys extends AdminController
     /* New survey question */
     public function add_survey_question()
     {
-        if (staff_cant('edit', 'surveys')) {
+        if (!has_permission('surveys', '', 'edit')) {
             echo json_encode([
                 'success' => false,
                 'message' => _l('access_denied'),
@@ -373,7 +373,7 @@ class Surveys extends AdminController
     /* Update question */
     public function update_question()
     {
-        if (staff_cant('edit', 'surveys')) {
+        if (!has_permission('surveys', '', 'edit')) {
             echo json_encode([
                 'success' => false,
                 'message' => _l('access_denied'),
@@ -390,7 +390,7 @@ class Surveys extends AdminController
     /* Reorder surveys */
     public function update_survey_questions_orders()
     {
-        if (staff_can('edit',  'surveys')) {
+        if (has_permission('surveys', '', 'edit')) {
             if ($this->input->is_ajax_request()) {
                 if ($this->input->post()) {
                     $this->surveys_model->update_survey_questions_orders($this->input->post());
@@ -402,7 +402,7 @@ class Surveys extends AdminController
     /* Change survey status active or inactive*/
     public function change_survey_status($id, $status)
     {
-        if (staff_can('edit',  'surveys')) {
+        if (has_permission('surveys', '', 'edit')) {
             if ($this->input->is_ajax_request()) {
                 $this->surveys_model->change_survey_status($id, $status);
             }
@@ -413,7 +413,7 @@ class Surveys extends AdminController
     /* List all mail lists */
     public function mail_lists()
     {
-        if (staff_cant('view', 'surveys')) {
+        if (!has_permission('surveys', '', 'view')) {
             access_denied('surveys');
         }
         if ($this->input->is_ajax_request()) {
@@ -428,7 +428,7 @@ class Surveys extends AdminController
     {
         if ($this->input->post()) {
             if ($id == '') {
-                if (staff_cant('create', 'surveys')) {
+                if (!has_permission('surveys', '', 'create')) {
                     access_denied('surveys');
                 }
                 $id = $this->surveys_model->add_mail_list($this->input->post());
@@ -437,7 +437,7 @@ class Surveys extends AdminController
                     redirect(admin_url('surveys/mail_list/' . $id));
                 }
             } else {
-                if (staff_cant('edit', 'surveys')) {
+                if (!has_permission('surveys', '', 'edit')) {
                     access_denied('surveys');
                 }
                 $success = $this->surveys_model->update_mail_list($this->input->post(), $id);
@@ -462,7 +462,7 @@ class Surveys extends AdminController
     /* View mail list all added emails */
     public function mail_list_view($id)
     {
-        if (staff_cant('view', 'surveys')) {
+        if (!has_permission('surveys', '', 'view')) {
             access_denied('surveys');
         }
         if (!$id) {
@@ -537,7 +537,7 @@ class Surveys extends AdminController
     /* Add single email to mail list / ajax*/
     public function add_email_to_list()
     {
-        if (staff_cant('create', 'surveys')) {
+        if (!has_permission('surveys', '', 'create')) {
             echo json_encode([
                 'success'       => false,
                 'error_message' => _l('access_denied'),
@@ -555,7 +555,7 @@ class Surveys extends AdminController
     /* Remove single email from mail list / ajax */
     public function remove_email_from_mail_list($emailid)
     {
-        if (staff_cant('delete', 'surveys')) {
+        if (!has_permission('surveys', '', 'delete')) {
             echo json_encode([
                 'success' => false,
                 'message' => _l('access_denied'),
@@ -575,7 +575,7 @@ class Surveys extends AdminController
     /* Remove mail list custom field */
     public function remove_list_custom_field($fieldid)
     {
-        if (staff_cant('delete', 'surveys')) {
+        if (!has_permission('surveys', '', 'delete')) {
             echo json_encode([
                 'success' => false,
                 'message' => _l('access_denied'),
@@ -591,7 +591,7 @@ class Surveys extends AdminController
     /* Import .xls file with emails */
     public function import_emails()
     {
-        if (staff_cant('create', 'surveys')) {
+        if (!has_permission('surveys', '', 'create')) {
             access_denied('surveys');
         }
 
@@ -662,7 +662,7 @@ class Surveys extends AdminController
     /* Delete mail list from database */
     public function delete_mail_list($id)
     {
-        if (staff_cant('delete', 'surveys')) {
+        if (!has_permission('surveys', '', 'delete')) {
             access_denied('surveys');
         }
         if (!$id) {

@@ -55,17 +55,17 @@ get_template_part($navigationEnabled ? 'navigation' : '');
         </div>
     </div>
 </div>
-</div>
 <?php
-    echo theme_footer_view();
-
-    /* Always have app_customers_footer() just before the closing </body>  */
-    app_customers_footer();
-    /**
-    * Check for any alerts stored in session
-    */
-    app_js_alerts();
+   echo theme_footer_view();
 ?>
+<?php
+/* Always have app_customers_footer() just before the closing </body>  */
+app_customers_footer();
+   /**
+   * Check for any alerts stored in session
+   */
+   app_js_alerts();
+   ?>
 </body>
 
 </html>

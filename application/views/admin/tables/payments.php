@@ -2,7 +2,7 @@
 
 defined('BASEPATH') or exit('No direct script access allowed');
 
-$hasPermissionDelete = staff_can('delete',  'payments');
+$hasPermissionDelete = has_permission('payments', '', 'delete');
 
 $aColumns = [
     db_prefix() . 'invoicepaymentrecords.id as id',
@@ -26,7 +26,7 @@ if ($clientid != '') {
     array_push($where, 'AND ' . db_prefix() . 'clients.userid=' . $this->ci->db->escape_str($clientid));
 }
 
-if (staff_cant('view', 'payments')) {
+if (!has_permission('payments', '', 'view')) {
     $whereUser = '';
     $whereUser .= 'AND (invoiceid IN (SELECT id FROM ' . db_prefix() . 'invoices WHERE (addedfrom=' . get_staff_user_id() . ' AND addedfrom IN (SELECT staff_id FROM ' . db_prefix() . 'staff_permissions WHERE feature = "invoices" AND capability="view_own")))';
     if (get_option('allow_staff_view_invoices_assigned') == 1) {
@@ -58,13 +58,14 @@ foreach ($rResult as $aRow) {
 
     $link = admin_url('payments/payment/' . $aRow['id']);
 
+
     $options = icon_btn('payments/payment/' . $aRow['id'], 'fa-regular fa-pen-to-square');
 
     if ($hasPermissionDelete) {
         $options .= icon_btn('payments/delete/' . $aRow['id'], 'fa fa-remove', 'btn-danger _delete');
     }
 
-    $numberOutput = '<a href="' . $link . '">' . e($aRow['id']) . '</a>';
+    $numberOutput = '<a href="' . $link . '">' . $aRow['id'] . '</a>';
 
     $numberOutput .= '<div class="row-options">';
     $numberOutput .= '<a href="' . $link . '">' . _l('view') . '</a>';
@@ -75,31 +76,31 @@ foreach ($rResult as $aRow) {
 
     $row[] = $numberOutput;
 
-    $row[] = '<a href="' . admin_url('invoices/list_invoices/' . $aRow['invoiceid']) . '">' . e(format_invoice_number($aRow['invoiceid'])) . '</a>';
+    $row[] = '<a href="' . admin_url('invoices/list_invoices/' . $aRow['invoiceid']) . '">' . format_invoice_number($aRow['invoiceid']) . '</a>';
 
-    $outputPaymentMode = e($aRow['payment_mode_name']);
+    $outputPaymentMode = $aRow['payment_mode_name'];
 
     // Since version 1.0.1
     if (is_null($aRow['paymentmodeid'])) {
         foreach ($payment_gateways as $gateway) {
             if ($aRow['paymentmode'] == $gateway['id']) {
-                $outputPaymentMode = e($gateway['name']);
+                $outputPaymentMode = $gateway['name'];
             }
         }
     }
 
     if (!empty($aRow['paymentmethod'])) {
-        $outputPaymentMode .= ' - ' . e($aRow['paymentmethod']);
+        $outputPaymentMode .= ' - ' . $aRow['paymentmethod'];
     }
     $row[] = $outputPaymentMode;
 
-    $row[] = e($aRow['transactionid']);
+    $row[] = $aRow['transactionid'];
 
-    $row[] = '<a href="' . admin_url('clients/client/' . $aRow['clientid']) . '">' . e($aRow['company']) . '</a>';
+    $row[] = '<a href="' . admin_url('clients/client/' . $aRow['clientid']) . '">' . $aRow['company'] . '</a>';
 
-    $row[] = e(app_format_money($aRow['amount'], $aRow['currency_name']));
+    $row[] = app_format_money($aRow['amount'], $aRow['currency_name']);
 
-    $row[] = e(_d($aRow['date']));
+    $row[] = _d($aRow['date']);
 
     $row['DT_RowClass'] = 'has-row-options';
 

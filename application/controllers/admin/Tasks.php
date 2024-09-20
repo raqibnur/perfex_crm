@@ -40,13 +40,12 @@ class Tasks extends AdminController
         }
 
         $data['title'] = _l('tasks');
-        $data['tasks_table'] = App_table::find('tasks');
         $this->load->view('admin/tasks/manage', $data);
     }
 
     public function table()
     {
-        App_table::find('tasks')->output();
+        $this->app->get_table_data('tasks');
     }
 
     public function kanban()
@@ -84,7 +83,7 @@ class Tasks extends AdminController
                 $this->input->get('sort_by'),
                 $this->input->get('sort')
             )
-            ->forProject($this->input->get('project_id') ?: null)
+            ->forProject($ci->input->get('project_id') ?: null)
             ->page($page)->get();
 
 
@@ -112,16 +111,20 @@ class Tasks extends AdminController
         $this->session->set_userdata([
             'tasks_kanban_view' => $set,
         ]);
-        
         if ($manual == false) {
-            redirect(previous_url() ?: $_SERVER['HTTP_REFERER']);
+            // clicked on VIEW KANBAN from projects area and will redirect again to the same view
+            if (strpos($_SERVER['HTTP_REFERER'], 'project_id') !== false) {
+                redirect(admin_url('tasks'));
+            } else {
+                redirect($_SERVER['HTTP_REFERER']);
+            }
         }
     }
 
     // Used in invoice add/edit
     public function get_billable_tasks_by_project($project_id)
     {
-        if ($this->input->is_ajax_request() && (staff_can('edit',  'invoices') || staff_can('create',  'invoices'))) {
+        if ($this->input->is_ajax_request() && (has_permission('invoices', '', 'edit') || has_permission('invoices', '', 'create'))) {
             $customer_id = get_client_id_by_project_id($project_id);
             echo json_encode($this->tasks_model->get_billable_tasks($customer_id, $project_id));
         }
@@ -130,14 +133,14 @@ class Tasks extends AdminController
     // Used in invoice add/edit
     public function get_billable_tasks_by_customer_id($customer_id)
     {
-        if ($this->input->is_ajax_request() && (staff_can('edit',  'invoices') || staff_can('create',  'invoices'))) {
+        if ($this->input->is_ajax_request() && (has_permission('invoices', '', 'edit') || has_permission('invoices', '', 'create'))) {
             echo json_encode($this->tasks_model->get_billable_tasks($customer_id));
         }
     }
 
     public function update_task_description($id)
     {
-        if (staff_can('edit',  'tasks')) {
+        if (has_permission('tasks', '', 'edit')) {
             $data = hooks()->apply_filters('before_update_task', [
                 'description' => html_purify($this->input->post('description', false)),
             ], $id);
@@ -153,8 +156,8 @@ class Tasks extends AdminController
     {
         $overview = [];
 
-        $has_permission_create = staff_can('create',  'tasks');
-        $has_permission_view   = staff_can('view',  'tasks');
+        $has_permission_create = has_permission('tasks', '', 'create');
+        $has_permission_view   = has_permission('tasks', '', 'view');
 
         if (!$has_permission_view) {
             $staff_id = get_staff_user_id();
@@ -276,17 +279,17 @@ class Tasks extends AdminController
     public function init_relation_tasks($rel_id, $rel_type)
     {
         if ($this->input->is_ajax_request()) {
-           App_table::find('related_tasks')->output([
+            $this->app->get_table_data('tasks_relations', [
                 'rel_id'   => $rel_id,
                 'rel_type' => $rel_type,
-           ]);
+            ]);
         }
     }
 
     /* Add new task or update existing */
     public function task($id = '')
     {
-        if (staff_cant('edit', 'tasks') && staff_cant('create', 'tasks')) {
+        if (!has_permission('tasks', '', 'edit') && !has_permission('tasks', '', 'create')) {
             ajax_access_denied();
         }
 
@@ -309,7 +312,7 @@ class Tasks extends AdminController
             $data                = $this->input->post();
             $data['description'] = html_purify($this->input->post('description', false));
             if ($id == '') {
-                if (staff_cant('create', 'tasks')) {
+                if (!has_permission('tasks', '', 'create')) {
                     header('HTTP/1.0 400 Bad error');
                     echo json_encode([
                         'success' => false,
@@ -338,7 +341,7 @@ class Tasks extends AdminController
                     'message' => $message,
                 ]);
             } else {
-                if (staff_cant('edit', 'tasks')) {
+                if (!has_permission('tasks', '', 'edit')) {
                     header('HTTP/1.0 400 Bad error');
                     echo json_encode([
                         'success' => false,
@@ -390,7 +393,7 @@ class Tasks extends AdminController
 
     public function copy()
     {
-        if (staff_can('create',  'tasks')) {
+        if (has_permission('tasks', '', 'create')) {
             $new_task_id = $this->tasks_model->copy($this->input->post());
             $response    = [
                 'new_task_id' => '',
@@ -424,7 +427,7 @@ class Tasks extends AdminController
     {
         $tasks_where = [];
 
-        if (staff_cant('view', 'tasks')) {
+        if (!has_permission('tasks', '', 'view')) {
             $tasks_where = get_tasks_where_string(false);
         }
 
@@ -523,7 +526,7 @@ class Tasks extends AdminController
 
     public function save_checklist_item_template()
     {
-        if (staff_can('create',  'checklist_templates')) {
+        if (has_permission('checklist_templates', '', 'create')) {
             $id = $this->tasks_model->add_checklist_template($this->input->post('description'));
             echo json_encode(['id' => $id]);
         }
@@ -531,7 +534,7 @@ class Tasks extends AdminController
 
     public function remove_checklist_item_template($id)
     {
-        if (staff_can('delete',  'checklist_templates')) {
+        if (has_permission('checklist_templates', '', 'delete')) {
             $success = $this->tasks_model->remove_checklist_item_template($id);
             echo json_encode(['success' => $success]);
         }
@@ -600,7 +603,7 @@ class Tasks extends AdminController
     public function delete_checklist_item($id)
     {
         $list = $this->tasks_model->get_checklist_item($id);
-        if (staff_can('delete',  'tasks') || $list->addedfrom == get_staff_user_id()) {
+        if (has_permission('tasks', '', 'delete') || $list->addedfrom == get_staff_user_id()) {
             if ($this->input->is_ajax_request()) {
                 echo json_encode([
                     'success' => $this->tasks_model->delete_checklist_item($id),
@@ -623,7 +626,7 @@ class Tasks extends AdminController
 
     public function make_public($task_id)
     {
-        if (staff_cant('edit', 'tasks')) {
+        if (!has_permission('tasks', '', 'edit')) {
             json_encode([
                 'success' => false,
             ]);
@@ -689,14 +692,14 @@ class Tasks extends AdminController
             $taskWhere .= ' AND task_comment_id=' . $this->db->escape_str($comment_id);
         }
 
-        if (staff_cant('view', 'tasks')) {
+        if (!has_permission('tasks', '', 'view')) {
             $taskWhere .= ' AND ' . get_tasks_where_string(false);
         }
 
         $files = $this->tasks_model->get_task_attachments($task_id, $taskWhere);
 
         if (count($files) == 0) {
-            redirect(previous_url() ?: $_SERVER['HTTP_REFERER']);
+            redirect($_SERVER['HTTP_REFERER']);
         }
 
         $path = get_upload_path_by_type('task') . $task_id;
@@ -814,7 +817,7 @@ class Tasks extends AdminController
         if (
             $this->tasks_model->is_task_assignee(get_staff_user_id(), $id)
             || $this->tasks_model->is_task_creator(get_staff_user_id(), $id)
-            || staff_can('edit',  'tasks')
+            || has_permission('tasks', '', 'edit')
         ) {
             $success = $this->tasks_model->unmark_complete($id);
 
@@ -844,7 +847,7 @@ class Tasks extends AdminController
         if (
             $this->tasks_model->is_task_assignee(get_staff_user_id(), $id)
             || $this->tasks_model->is_task_creator(get_staff_user_id(), $id)
-            || staff_can('edit',  'tasks')
+            || has_permission('tasks', '', 'edit')
         ) {
             $success = $this->tasks_model->mark_as($status, $id);
 
@@ -873,7 +876,7 @@ class Tasks extends AdminController
 
     public function change_priority($priority_id, $id)
     {
-        if (staff_can('edit',  'tasks')) {
+        if (has_permission('tasks', '', 'edit')) {
             $data = hooks()->apply_filters('before_update_task', ['priority' => $priority_id], $id);
 
             $this->db->where('id', $id);
@@ -899,7 +902,7 @@ class Tasks extends AdminController
 
     public function change_milestone($milestone_id, $id)
     {
-        if (staff_can('edit',  'tasks')) {
+        if (has_permission('tasks', '', 'edit')) {
             $this->db->where('id', $id);
             $this->db->update(db_prefix() . 'tasks', ['milestone' => $milestone_id]);
 
@@ -920,7 +923,7 @@ class Tasks extends AdminController
 
     public function task_single_inline_update($task_id)
     {
-        if (staff_can('edit',  'tasks')) {
+        if (has_permission('tasks', '', 'edit')) {
             $post_data = $this->input->post();
             foreach ($post_data as $key => $val) {
                 $data = hooks()->apply_filters('before_update_task', [
@@ -938,7 +941,7 @@ class Tasks extends AdminController
     /* Delete task from database */
     public function delete_task($id)
     {
-        if (staff_cant('delete', 'tasks')) {
+        if (!has_permission('tasks', '', 'delete')) {
             access_denied('tasks');
         }
         $success = $this->tasks_model->delete_task($id);
@@ -950,12 +953,13 @@ class Tasks extends AdminController
             set_alert('warning', $message);
         }
 
-        if (empty($_SERVER['HTTP_REFERER']) || 
-            strpos($_SERVER['HTTP_REFERER'], 'tasks/index') !== false || 
-            strpos($_SERVER['HTTP_REFERER'], 'tasks/view') !== false) {
+        if (strpos($_SERVER['HTTP_REFERER'], 'tasks/index') !== false || strpos($_SERVER['HTTP_REFERER'], 'tasks/view') !== false) {
             redirect(admin_url('tasks'));
+        } elseif (preg_match("/projects\/view\/[1-9]+/", $_SERVER['HTTP_REFERER'])) {
+            $project_url = explode('?', $_SERVER['HTTP_REFERER']);
+            redirect($project_url[0] . '?group=project_tasks');
         } else {
-            redirect(previous_url() ?: $_SERVER['HTTP_REFERER']);
+            redirect($_SERVER['HTTP_REFERER']);
         }
     }
 
@@ -1042,7 +1046,7 @@ class Tasks extends AdminController
                 set_alert('success', $message);
             }
             if (!$this->input->is_ajax_request()) {
-                redirect(previous_url() ?: $_SERVER['HTTP_REFERER']);
+                redirect($_SERVER['HTTP_REFERER']);
             }
         }
     }
@@ -1095,7 +1099,7 @@ class Tasks extends AdminController
 
     public function update_tags()
     {
-        if (staff_can('create',  'tasks') || staff_can('edit',  'tasks')) {
+        if (has_permission('tasks', '', 'create') || has_permission('tasks', '', 'edit')) {
             $id = $this->input->post('task_id');
 
             $data = hooks()->apply_filters('before_update_task', [
@@ -1124,7 +1128,7 @@ class Tasks extends AdminController
             if (is_array($ids)) {
                 foreach ($ids as $id) {
                     if ($this->input->post('mass_delete')) {
-                        if (staff_can('delete',  'tasks')) {
+                        if (has_permission('tasks', '', 'delete')) {
                             if ($this->tasks_model->delete_task($id)) {
                                 $total_deleted++;
                             }
@@ -1220,7 +1224,7 @@ class Tasks extends AdminController
     {
         if ($this->input->is_ajax_request()) {
             $tasks_where = [];
-            if (staff_cant('view', 'tasks')) {
+            if (!staff_can('view', 'tasks')) {
                 $tasks_where = get_tasks_where_string(false);
             }
             $task = $this->tasks_model->get($id, $tasks_where);
@@ -1241,7 +1245,7 @@ class Tasks extends AdminController
             $members = $this->tasks_model->get_staff_members_that_can_access_task($taskId);
             $members = array_map(function ($member) {
                 $_member['id'] = $member['staffid'];
-                $_member['name'] = e($member['firstname'] . ' ' . $member['lastname']);
+                $_member['name'] = $member['firstname'] . ' ' . $member['lastname'];
 
                 return $_member;
             }, $members);

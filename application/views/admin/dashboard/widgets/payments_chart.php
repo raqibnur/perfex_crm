@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed'); ?>
 <div class="widget" id="widget-<?php echo create_widget_id(); ?>" data-name="<?php echo _l('home_payment_records'); ?>">
-    <?php if (staff_can('view',  'payments') || staff_can('view_own',  'invoices')) { ?>
+    <?php if (has_permission('payments', '', 'view') || has_permission('invoices', '', 'view_own')) { ?>
     <div class="row" id="payments">
         <div class="col-md-12">
             <div class="panel_s">
@@ -30,14 +30,14 @@
     if ($currency['isdefault'] == 1) {
         $selected = 'selected';
     } ?>
-                                <option value="<?php echo e($currency['id']); ?>" <?php echo e($selected); ?>
-                                    data-subtext="<?php echo e($currency['name']); ?>"><?php echo e($currency['symbol']); ?>
+                                <option value="<?php echo $currency['id']; ?>" <?php echo $selected; ?>
+                                    data-subtext="<?php echo $currency['name']; ?>"><?php echo $currency['symbol']; ?>
                                 </option>
                                 <?php
 } ?>
                             </select>
                             <?php } ?>
-                            <?php if (staff_can('view',  'reports')) { ?>
+                            <?php if (has_permission('reports', '', 'view')) { ?>
                             <a href="<?php echo admin_url('reports/sales'); ?>" class="tw-pl-2">
                                 <?php echo _l('home_stats_full_report'); ?>
                             </a>

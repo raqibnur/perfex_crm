@@ -399,6 +399,8 @@ final class Cookie
      *
      * This does not compare the values, only name, domain and path.
      *
+     * @param Cookie $cookie
+     *
      * @return bool
      */
     public function match(self $cookie)

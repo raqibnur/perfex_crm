@@ -16,7 +16,7 @@ function format_task_status($status, $text = false, $clean = false)
 
     $status_name = $status['name'];
 
-    $status_name = e(hooks()->apply_filters('task_status_name', $status_name, $status));
+    $status_name = hooks()->apply_filters('task_status_name', $status_name, $status);
 
     if ($clean == true) {
         return $status_name;
@@ -176,9 +176,9 @@ function format_members_by_ids_and_names($ids, $names, $size = 'md')
                     ($size == 'md' ? 'tw-h-7 tw-w-7' : 'tw-h-5 tw-w-5') . ' tw-inline-block tw-rounded-full tw-ring-2 tw-ring-white',
                 ], 'small', [
                     'data-toggle' => 'tooltip',
-                    'data-title'  => e($assigned),
+                    'data-title'  => $assigned,
                 ]) . '</a>';
-            $exportAssignees .= e($assigned) . ', ';
+            $exportAssignees .= $assigned . ', ';
         }
     }
 
@@ -270,7 +270,7 @@ function tasks_rel_name_select_query()
  * @param  array  $table_attributes
  * @return string
  */
-function init_relation_tasks_table($table_attributes = [], $filtersWrapperId = 'vueApp')
+function init_relation_tasks_table($table_attributes = [])
 {
     $table_data = [
         _l('the_number_sign'),
@@ -327,18 +327,13 @@ function init_relation_tasks_table($table_attributes = [], $filtersWrapperId = '
         $name = 'rel-tasks-leads';
     }
 
-    $tasks_table = App_table::find('related_tasks');
-
     $table      = '';
     $CI         = &get_instance();
     $table_name = '.table-' . $name;
-
-    $CI->load->view('admin/tasks/filters', [
-        'tasks_table'=>$tasks_table,
-        'filters_wrapper_id'=>$filtersWrapperId,
+    $CI->load->view('admin/tasks/tasks_filter_by', [
+        'view_table_name' => $table_name,
     ]);
-
-    if (staff_can('create',  'tasks')) {
+    if (has_permission('tasks', '', 'create')) {
         $disabled   = '';
         $table_name = addslashes($table_name);
         if ($table_attributes['data-new-rel-type'] == 'customer' && is_numeric($table_attributes['data-new-rel-id'])) {
@@ -406,7 +401,7 @@ function init_relation_tasks_table($table_attributes = [], $filtersWrapperId = '
         <input type="checkbox" value="proposal" id="ts_rel_to_proposal" name="tasks_related_to[]">
         <label for="ts_rel_to_proposal">' . _l('proposals') . '</label>
         </div>';
-        echo form_hidden('tasks_related_to');
+
         echo '</div>';
     }
     echo "<div class='clearfix'></div>";
@@ -418,8 +413,6 @@ function init_relation_tasks_table($table_attributes = [], $filtersWrapperId = '
     if ($table_attributes['data-new-rel-type'] != 'project') {
         echo '<hr />';
     }
-    $table_attributes['id'] = 'related_tasks';
-
     $table .= render_datatable($table_data, $name, ['number-index-1'], $table_attributes);
 
     return $table;
@@ -437,7 +430,7 @@ function tasks_summary_data($rel_id = null, $rel_type = null)
     $statuses      = $CI->tasks_model->get_statuses();
     foreach ($statuses as $status) {
         $tasks_where = 'status = ' . $CI->db->escape_str($status['id']);
-        if (staff_cant('view', 'tasks')) {
+        if (!has_permission('tasks', '', 'view')) {
             $tasks_where .= ' ' . get_tasks_where_string();
         }
         $tasks_my_where = 'id IN(SELECT taskid FROM ' . db_prefix() . 'task_assigned WHERE staffid=' . get_staff_user_id() . ') AND status=' . $CI->db->escape_str($status['id']);

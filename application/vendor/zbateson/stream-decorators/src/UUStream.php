@@ -92,7 +92,7 @@ class UUStream implements StreamInterface
      * @param int $whence
      * @throws RuntimeException
      */
-    public function seek($offset, $whence = SEEK_SET) : void
+    public function seek($offset, $whence = SEEK_SET)
     {
         throw new RuntimeException('Cannot seek a UUStream');
     }

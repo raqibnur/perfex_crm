@@ -2,7 +2,7 @@
 <div class="col-md-12">
     <div class="tw-mb-2 sm:tw-mb-4">
         <div class="_buttons">
-            <?php if (staff_can('create',  'invoices')) { ?>
+            <?php if (has_permission('invoices', '', 'create')) { ?>
             <a href="<?php echo admin_url('invoices/invoice'); ?>"
                 class="btn btn-primary pull-left new new-invoice-list">
                 <i class="fa-regular fa-plus tw-mr-1"></i>
@@ -30,8 +30,8 @@
                         <li class="divider"></li>
                         <?php foreach ($invoices_years as $year) { ?>
                         <li class="active">
-                            <a href="#" data-cview="year_<?php echo e($year['year']); ?>"
-                                onclick="dt_custom_view(<?php echo e($year['year']); ?>,'.table-invoices','year_<?php echo e($year['year']); ?>'); return false;"><?php echo e($year['year']); ?>
+                            <a href="#" data-cview="year_<?php echo $year['year']; ?>"
+                                onclick="dt_custom_view(<?php echo $year['year']; ?>,'.table-invoices','year_<?php echo $year['year']; ?>'); return false;"><?php echo $year['year']; ?>
                             </a>
                         </li>
                         <?php } ?>
@@ -44,8 +44,8 @@
                             <ul class="dropdown-menu dropdown-menu-left">
                                 <?php foreach ($invoices_sale_agents as $agent) { ?>
                                 <li>
-                                    <a href="#" data-cview="sale_agent_<?php echo e($agent['sale_agent']); ?>"
-                                        onclick="dt_custom_view(<?php echo e($agent['sale_agent']); ?>,'.table-invoices','sale_agent_<?php echo e($agent['sale_agent']); ?>'); return false;"><?php echo e($agent['full_name']); ?>
+                                    <a href="#" data-cview="sale_agent_<?php echo $agent['sale_agent']; ?>"
+                                        onclick="dt_custom_view(<?php echo $agent['sale_agent']; ?>,'.table-invoices','sale_agent_<?php echo $agent['sale_agent']; ?>'); return false;"><?php echo $agent['full_name']; ?>
                                     </a>
                                 </li>
                                 <?php } ?>

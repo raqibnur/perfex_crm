@@ -13,19 +13,9 @@ class Str
 {
     use Clickable;
 
-    public static function startsWith($haystack, $needles)
+    public static function startsWith($haystack, $needle)
     {
-        if (! is_iterable($needles)) {
-            $needles = [$needles];
-        }
-
-        foreach ($needles as $needle) {
-            if ((string) $needle !== '' && strrpos($haystack, $needle, -strlen($haystack)) !== false) {
-                return true;
-            }
-        }
-
-        return false;
+        return $needle === '' || strrpos($haystack, $needle, -strlen($haystack)) !== false;
     }
 
     public static function endsWith($haystack, $needle)

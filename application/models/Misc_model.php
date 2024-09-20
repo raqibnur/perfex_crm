@@ -551,7 +551,7 @@ class Misc_model extends App_Model
         $result                         = [];
         $limit                          = get_option('limit_top_search_bar_results_to');
         $have_assigned_customers        = have_assigned_customers();
-        $have_permission_customers_view = staff_can('view',  'customers');
+        $have_permission_customers_view = has_permission('customers', '', 'view');
         if ($have_assigned_customers || $have_permission_customers_view) {
 
             // Clients
@@ -653,7 +653,7 @@ class Misc_model extends App_Model
         }
 
 
-        if (staff_can('view',  'knowledge_base')) {
+        if (has_permission('knowledge_base', '', 'view')) {
             // Knowledge base articles
             $this->db->select()->from(db_prefix() . 'knowledge_base')->like('subject', $q)->or_like('description', $q)->or_like('slug', $q)->limit($limit);
 
@@ -667,7 +667,7 @@ class Misc_model extends App_Model
         }
 
         // Tasks Search
-        $tasks = staff_can('view',  'tasks');
+        $tasks = has_permission('tasks', '', 'view');
         // Staff tasks
         $this->db->select();
         $this->db->from(db_prefix() . 'tasks');
@@ -702,10 +702,10 @@ class Misc_model extends App_Model
 
 
         // Payments search
-        $has_permission_view_payments     = staff_can('view',  'payments');
-        $has_permission_view_invoices_own = staff_can('view_own',  'invoices');
+        $has_permission_view_payments     = has_permission('payments', '', 'view');
+        $has_permission_view_invoices_own = has_permission('invoices', '', 'view_own');
 
-        if (staff_can('view',  'payments') || $has_permission_view_invoices_own || get_option('allow_staff_view_invoices_assigned') == '1') {
+        if (has_permission('payments', '', 'view') || $has_permission_view_invoices_own || get_option('allow_staff_view_invoices_assigned') == '1') {
             if (is_numeric($q)) {
                 $q = trim($q);
                 $q = ltrim($q, '0');
@@ -752,8 +752,8 @@ class Misc_model extends App_Model
         }
 
         // Invoice Items Search
-        $has_permission_view_invoices       = staff_can('view',  'invoices');
-        $has_permission_view_invoices_own   = staff_can('view_own',  'invoices');
+        $has_permission_view_invoices       = has_permission('invoices', '', 'view');
+        $has_permission_view_invoices_own   = has_permission('invoices', '', 'view_own');
         $allow_staff_view_invoices_assigned = get_option('allow_staff_view_invoices_assigned');
 
         if ($has_permission_view_invoices || $has_permission_view_invoices_own || $allow_staff_view_invoices_assigned == '1') {
@@ -775,8 +775,8 @@ class Misc_model extends App_Model
         }
 
         // Estimate Items Search
-        $has_permission_view_estimates       = staff_can('view',  'estimates');
-        $has_permission_view_estimates_own   = staff_can('view_own',  'estimates');
+        $has_permission_view_estimates       = has_permission('estimates', '', 'view');
+        $has_permission_view_estimates_own   = has_permission('estimates', '', 'view_own');
         $allow_staff_view_estimates_assigned = get_option('allow_staff_view_estimates_assigned');
         if ($has_permission_view_estimates || $has_permission_view_estimates_own || $allow_staff_view_estimates_assigned) {
             $noPermissionQuery = get_estimates_where_sql_for_staff(get_staff_user_id());
@@ -809,8 +809,8 @@ class Misc_model extends App_Model
             'search_heading' => _l('proposals'),
         ];
 
-        $has_permission_view_proposals     = staff_can('view',  'proposals');
-        $has_permission_view_proposals_own = staff_can('view_own',  'proposals');
+        $has_permission_view_proposals     = has_permission('proposals', '', 'view');
+        $has_permission_view_proposals_own = has_permission('proposals', '', 'view_own');
 
         if ($has_permission_view_proposals || $has_permission_view_proposals_own || get_option('allow_staff_view_proposals_assigned') == '1') {
             if (is_numeric($q)) {
@@ -864,7 +864,7 @@ class Misc_model extends App_Model
             'search_heading' => _l('leads'),
         ];
 
-        $has_permission_view = staff_can('view',  'leads');
+        $has_permission_view = has_permission('leads', '', 'view');
 
         if (is_staff_member()) {
             // Leads
@@ -991,7 +991,7 @@ class Misc_model extends App_Model
         ];
 
         $have_assigned_customers        = have_assigned_customers();
-        $have_permission_customers_view = staff_can('view',  'customers');
+        $have_permission_customers_view = has_permission('customers', '', 'view');
         $tickets_contacts = $this->input->post('tickets_contacts') && get_option('staff_members_open_tickets_to_all_contacts') == 1;
 
         if ($have_assigned_customers || $have_permission_customers_view || $tickets_contacts) {
@@ -1033,7 +1033,7 @@ class Misc_model extends App_Model
             'search_heading' => _l('staff_members'),
         ];
 
-        if (staff_can('view',  'staff')) {
+        if (has_permission('staff', '', 'view')) {
             // Staff
             $this->db->select();
             $this->db->from(db_prefix() . 'staff');
@@ -1065,8 +1065,8 @@ class Misc_model extends App_Model
             'search_heading' => _l('contracts'),
         ];
 
-        $has_permission_view_contracts = staff_can('view',  'contracts');
-        if ($has_permission_view_contracts || staff_can('view_own',  'contracts')) {
+        $has_permission_view_contracts = has_permission('contracts', '', 'view');
+        if ($has_permission_view_contracts || has_permission('contracts', '', 'view_own')) {
             // Contracts
             $this->db->select();
             $this->db->from(db_prefix() . 'contracts');
@@ -1094,7 +1094,7 @@ class Misc_model extends App_Model
             'search_heading' => _l('projects'),
         ];
 
-        $projects = staff_can('view',  'projects');
+        $projects = has_permission('projects', '', 'view');
         // Projects
         $this->db->select();
         $this->db->from(db_prefix() . 'projects');
@@ -1142,8 +1142,8 @@ class Misc_model extends App_Model
             'type'           => 'invoices',
             'search_heading' => _l('invoices'),
         ];
-        $has_permission_view_invoices     = staff_can('view',  'invoices');
-        $has_permission_view_invoices_own = staff_can('view_own',  'invoices');
+        $has_permission_view_invoices     = has_permission('invoices', '', 'view');
+        $has_permission_view_invoices_own = has_permission('invoices', '', 'view_own');
 
         if ($has_permission_view_invoices || $has_permission_view_invoices_own || get_option('allow_staff_view_invoices_assigned') == '1') {
             if (is_numeric($q)) {
@@ -1253,8 +1253,8 @@ class Misc_model extends App_Model
             'search_heading' => _l('credit_notes'),
         ];
 
-        $has_permission_view_credit_notes     = staff_can('view',  'credit_notes');
-        $has_permission_view_credit_notes_own = staff_can('view_own',  'credit_notes');
+        $has_permission_view_credit_notes     = has_permission('credit_notes', '', 'view');
+        $has_permission_view_credit_notes_own = has_permission('credit_notes', '', 'view_own');
 
         if ($has_permission_view_credit_notes || $has_permission_view_credit_notes_own) {
             if (is_numeric($q)) {
@@ -1356,8 +1356,8 @@ class Misc_model extends App_Model
             'search_heading' => _l('estimates'),
         ];
 
-        $has_permission_view_estimates     = staff_can('view',  'estimates');
-        $has_permission_view_estimates_own = staff_can('view_own',  'estimates');
+        $has_permission_view_estimates     = has_permission('estimates', '', 'view');
+        $has_permission_view_estimates_own = has_permission('estimates', '', 'view_own');
 
         if ($has_permission_view_estimates || $has_permission_view_estimates_own || get_option('allow_staff_view_estimates_assigned') == '1') {
             if (is_numeric($q)) {
@@ -1455,8 +1455,8 @@ class Misc_model extends App_Model
             'search_heading' => _l('expenses'),
         ];
 
-        $has_permission_expenses_view     = staff_can('view',  'expenses');
-        $has_permission_expenses_view_own = staff_can('view_own',  'expenses');
+        $has_permission_expenses_view     = has_permission('expenses', '', 'view');
+        $has_permission_expenses_view_own = has_permission('expenses', '', 'view_own');
 
         if ($has_permission_expenses_view || $has_permission_expenses_view_own) {
             // Expenses

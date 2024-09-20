@@ -15,29 +15,27 @@ class Subscriptions extends AdminController
 
     public function index()
     {
-        if (staff_cant('view', 'subscriptions') && staff_cant('view_own', 'subscriptions')) {
+        if (!has_permission('subscriptions', '', 'view') && !has_permission('subscriptions', '', 'view_own')) {
             access_denied('Subscriptions View');
         }
 
         close_setup_menu();
 
         $data['title'] = _l('subscriptions');
-        $data['table'] = App_table::find('subscriptions');
         $this->load->view('admin/subscriptions/manage', $data);
     }
 
     public function table()
     {
-        if (staff_cant('view', 'subscriptions') && staff_cant('view_own', 'subscriptions')) {
+        if (!has_permission('subscriptions', '', 'view') && !has_permission('subscriptions', '', 'view_own')) {
             ajax_access_denied();
         }
-        
-        App_table::find('subscriptions')->output();
+        $this->app->get_table_data('subscriptions');
     }
 
     public function create()
     {
-        if (staff_cant('create', 'subscriptions')) {
+        if (!has_permission('subscriptions', '', 'create')) {
             access_denied('Subscriptions Create');
         }
 
@@ -89,13 +87,13 @@ class Subscriptions extends AdminController
 
     public function edit($id)
     {
-        if (staff_cant('view', 'subscriptions') && staff_cant('view_own', 'subscriptions')) {
+        if (!has_permission('subscriptions', '', 'view') && !has_permission('subscriptions', '', 'view_own')) {
             access_denied('Subscriptions View');
         }
 
         $subscription = $this->subscriptions_model->get_by_id($id);
 
-        if (!$subscription || (staff_cant('view', 'subscriptions') && $subscription->created_from != get_staff_user_id())) {
+        if (!$subscription || (!has_permission('subscriptions', '', 'view') && $subscription->created_from != get_staff_user_id())) {
             show_404();
         }
 
@@ -106,7 +104,7 @@ class Subscriptions extends AdminController
         $stripeSubscriptionId = $subscription->stripe_subscription_id;
 
         if ($this->input->post()) {
-            if (staff_cant('edit', 'subscriptions')) {
+            if (!has_permission('subscriptions', '', 'edit')) {
                 access_denied('Subscriptions Edit');
             }
 
@@ -190,7 +188,7 @@ class Subscriptions extends AdminController
 
     public function send_to_email($id)
     {
-        if (staff_cant('view', 'subscriptions')) {
+        if (!has_permission('subscriptions', '', 'view')) {
             access_denied('Subscription Send To Email');
         }
 
@@ -207,7 +205,7 @@ class Subscriptions extends AdminController
 
     public function cancel($id)
     {
-        if (staff_cant('edit', 'subscriptions')) {
+        if (!has_permission('subscriptions', '', 'edit')) {
             access_denied('Cancel Subscription');
         }
 
@@ -262,7 +260,7 @@ class Subscriptions extends AdminController
 
     public function resume($id)
     {
-        if (staff_cant('edit', 'subscriptions')) {
+        if (!has_permission('subscriptions', '', 'edit')) {
             access_denied('Resume Subscription');
         }
 
@@ -283,7 +281,7 @@ class Subscriptions extends AdminController
 
     public function delete($id)
     {
-        if (staff_cant('delete', 'subscriptions')) {
+        if (!has_permission('subscriptions', '', 'delete')) {
             access_denied('Subscriptions Delete');
         }
 
@@ -300,6 +298,10 @@ class Subscriptions extends AdminController
             set_alert('warning', _l('problem_deleting', _l('subscription')));
         }
 
-        redirect(previous_url() ?: $_SERVER['HTTP_REFERER']);
+        if (strpos($_SERVER['HTTP_REFERER'], 'clients/') !== false) {
+            redirect($_SERVER['HTTP_REFERER']);
+        } else {
+            redirect(admin_url('subscriptions'));
+        }
     }
 }

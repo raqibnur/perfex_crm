@@ -13,6 +13,9 @@ use Http\Mock\Client as Mock;
  */
 final class MockClientStrategy implements DiscoveryStrategy
 {
+    /**
+     * {@inheritdoc}
+     */
     public static function getCandidates($type)
     {
         if (is_a(HttpClient::class, $type, true) || is_a(HttpAsyncClient::class, $type, true)) {

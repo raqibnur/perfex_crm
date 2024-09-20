@@ -2,16 +2,16 @@
 <?php if (isset($client)) { ?>
 <h4 class="customer-profile-group-heading"><?php echo _l('credit_notes'); ?></h4>
 <div class="alert alert-warning">
-    <?php echo e(_l('x_credits_available', app_format_money($credits_available, $customer_currency))); ?>
+    <?php echo _l('x_credits_available', app_format_money($credits_available, $customer_currency)); ?>
 </div>
-<?php if (staff_can('create',  'credit_notes')) { ?>
+<?php if (has_permission('credit_notes', '', 'create')) { ?>
 <a href="<?php echo admin_url('credit_notes/credit_note?customer_id=' . $client->userid); ?>"
     class="btn btn-primary mbot15<?php echo $client->active == 0 ? ' disabled' : ''; ?>">
     <i class="fa-regular fa-plus tw-mr-1"></i>
     <?php echo _l('new_credit_note'); ?>
 </a>
 <?php } ?>
-<?php if (staff_can('view',  'credit_notes') || staff_can('view_own',  'credit_notes')) { ?>
+<?php if (has_permission('credit_notes', '', 'view') || has_permission('credit_notes', '', 'view_own')) { ?>
 <a href="#" class="btn btn-primary mbot15" data-toggle="modal" data-target="#client_zip_credit_notes">
     <i class="fa-regular fa-file-zipper tw-mr-1"></i>
     <?php echo _l('zip_credit_notes'); ?>

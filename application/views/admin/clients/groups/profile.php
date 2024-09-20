@@ -101,10 +101,10 @@
                         <div class="form-group">
                             <label for="website"><?php echo _l('client_website'); ?></label>
                             <div class="input-group">
-                                <input type="text" name="website" id="website" value="<?php echo e($client->website); ?>"
+                                <input type="text" name="website" id="website" value="<?php echo $client->website; ?>"
                                     class="form-control">
                                 <span class="input-group-btn">
-                                    <a href="<?php echo e(maybe_add_http($client->website)); ?>" class="btn btn-default"
+                                    <a href="<?php echo maybe_add_http($client->website); ?>" class="btn btn-default"
                                         target="_blank" tabindex="-1">
                                         <i class="fa fa-globe"></i></a>
                                 </span>
@@ -164,8 +164,8 @@
                                  $selected = 'selected';
                              }
                          } ?>
-                                        <option value="<?php echo e($availableLanguage); ?>" <?php echo e($selected); ?>>
-                                            <?php echo e(ucfirst($availableLanguage)); ?></option>
+                                        <option value="<?php echo $availableLanguage; ?>" <?php echo $selected; ?>>
+                                            <?php echo ucfirst($availableLanguage); ?></option>
                                         <?php
                      } ?>
                                     </select>
@@ -194,7 +194,7 @@
             </div>
             <?php if (isset($client)) { ?>
             <div role="tabpanel" class="tab-pane" id="customer_admins">
-                <?php if (staff_can('create',  'customers') || staff_can('edit',  'customers')) { ?>
+                <?php if (has_permission('customers', '', 'create') || has_permission('customers', '', 'edit')) { ?>
                 <a href="#" data-toggle="modal" data-target="#customer_admins_assign"
                     class="btn btn-primary mbot30"><?php echo _l('assign_admin'); ?></a>
                 <?php } ?>
@@ -203,7 +203,7 @@
                         <tr>
                             <th><?php echo _l('staff_member'); ?></th>
                             <th><?php echo _l('customer_admin_date_assigned'); ?></th>
-                            <?php if (staff_can('create',  'customers') || staff_can('edit',  'customers')) { ?>
+                            <?php if (has_permission('customers', '', 'create') || has_permission('customers', '', 'edit')) { ?>
                             <th><?php echo _l('options'); ?></th>
                             <?php } ?>
                         </tr>
@@ -216,11 +216,11 @@
                            'staff-profile-image-small',
                            'mright5',
                            ]);
-                           echo e(get_staff_full_name($c_admin['staff_id'])); ?></a>
+                           echo get_staff_full_name($c_admin['staff_id']); ?></a>
                             </td>
-                            <td data-order="<?php echo e($c_admin['date_assigned']); ?>">
-                                <?php echo e(_dt($c_admin['date_assigned'])); ?></td>
-                            <?php if (staff_can('create',  'customers') || staff_can('edit',  'customers')) { ?>
+                            <td data-order="<?php echo $c_admin['date_assigned']; ?>">
+                                <?php echo _dt($c_admin['date_assigned']); ?></td>
+                            <?php if (has_permission('customers', '', 'create') || has_permission('customers', '', 'edit')) { ?>
                             <td>
                                 <a href="<?php echo admin_url('clients/delete_customer_admin/' . $client->userid . '/' . $c_admin['staff_id']); ?>"
                                     class="tw-mt-px tw-text-neutral-500 hover:tw-text-neutral-700 focus:tw-text-neutral-700 _delete">
@@ -317,7 +317,7 @@
     <?php echo form_close(); ?>
 </div>
 <?php if (isset($client)) { ?>
-<?php if (staff_can('create',  'customers') || staff_can('edit',  'customers')) { ?>
+<?php if (has_permission('customers', '', 'create') || has_permission('customers', '', 'edit')) { ?>
 <div class="modal fade" id="customer_admins_assign" tabindex="-1" role="dialog">
     <div class="modal-dialog">
         <?php echo form_open(admin_url('clients/assign_admins/' . $client->userid)); ?>

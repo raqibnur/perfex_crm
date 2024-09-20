@@ -5,21 +5,14 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="_buttons">
-                    <?php if (staff_can('create',  'contracts')) { ?>
+                    <?php if (has_permission('contracts', '', 'create')) { ?>
                     <a href="<?php echo admin_url('contracts/contract'); ?>"
                         class="btn btn-primary pull-left display-block tw-mb-2 sm:tw-mb-4">
                         <i class="fa-regular fa-plus tw-mr-1"></i>
                         <?php echo _l('new_contract'); ?>
                     </a>
                     <?php } ?>
-                    <div id="vueApp" class="tw-inline pull-right tw-ml-0 sm:tw-ml-1.5">
-                        <app-filters 
-                            id="<?php echo $table->id(); ?>" 
-                            view="<?php echo $table->viewName(); ?>"
-                            :saved-filters="<?php echo $table->filtersJs(); ?>"
-                            :available-rules="<?php echo $table->rulesJs(); ?>">
-                        </app-filters>
-                    </div>
+                    <?php $this->load->view('admin/contracts/filters'); ?>
                     <div class="clearfix"></div>
                     <div id="contract_summary">
                         <h4 class="tw-mt-0 tw-font-semibold tw-text-lg tw-flex tw-items-center">
@@ -37,13 +30,13 @@
                             <div
                                 class="md:tw-border-r md:tw-border-solid md:tw-border-neutral-300 tw-flex-1 tw-flex tw-items-center">
                                 <span class="tw-font-semibold sm:tw-w-auto tw-mr-3 rtl:tw-ml-3 tw-text-lg">
-                                    <?php echo e($count_active); ?></span>
+                                    <?php echo $count_active; ?></span>
                                 <span class="text-info"><?php echo _l('contract_summary_active'); ?></span>
                             </div>
                             <div
                                 class="md:tw-border-r md:tw-border-solid md:tw-border-neutral-300 tw-flex-1 tw-flex tw-items-center">
                                 <span class="tw-font-semibold sm:tw-w-auto tw-mr-3 rtl:tw-ml-3 tw-text-lg">
-                                    <?php echo e($count_expired); ?></span>
+                                    <?php echo $count_expired; ?></span>
                                 <span class="text-danger"><?php echo _l('contract_summary_expired'); ?></span>
                             </div>
                             <div
@@ -56,13 +49,13 @@
                             <div
                                 class="md:tw-border-r md:tw-border-solid md:tw-border-neutral-300 tw-flex-1 tw-flex tw-items-center">
                                 <span class="tw-font-semibold sm:tw-w-auto tw-mr-3 rtl:tw-ml-3 tw-text-lg">
-                                    <?php echo e($count_recently_created); ?></span>
+                                    <?php echo $count_recently_created; ?></span>
                                 <span class="text-success"><?php echo _l('contract_summary_recently_added'); ?></span>
                             </div>
                             <div
                                 class="tw-flex tw-items-center md:tw-border-r md:tw-border-solid tw-flex-1 md:tw-border-neutral-300 lg:tw-border-0">
                                 <span class="tw-font-semibold sm:tw-w-auto tw-mr-3 rtl:tw-ml-3 tw-text-lg">
-                                    <?php echo e($count_trash); ?></span>
+                                    <?php echo $count_trash; ?></span>
                                 <span class="text-muted"><?php echo _l('contract_summary_trash'); ?></span>
                             </div>
                         </div>
@@ -85,7 +78,7 @@
                                     <?php echo _l('contract_summary_by_type_value'); ?>
                                     (<span data-toggle="tooltip" data-title="<?php echo _l('base_currency_string'); ?>"
                                         class="text-has-action">
-                                        <?php echo e($base_currency->name); ?></span>)
+                                        <?php echo $base_currency->name; ?></span>)
                                 </h4>
                                 <div class="relative" style="max-height:400px">
                                     <canvas class="chart" height="400" id="contracts-value-by-type-chart"></canvas>
@@ -104,8 +97,14 @@
 <?php init_tail(); ?>
 <script>
 $(function() {
+
+    var ContractsServerParams = {};
+    $.each($('._hidden_inputs._filters input'), function() {
+        ContractsServerParams[$(this).attr('name')] = '[name="' + $(this).attr('name') + '"]';
+    });
+
     initDataTable('.table-contracts', admin_url + 'contracts/table', undefined, undefined,
-        {},
+        ContractsServerParams,
         <?php echo hooks()->apply_filters('contracts_table_default_order', json_encode([6, 'asc'])); ?>);
 
     new Chart($('#contracts-by-type-chart'), {

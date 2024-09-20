@@ -4,7 +4,7 @@
     <div class="content">
         <div class="row">
             <div class="col-md-12">
-                <?php if (staff_can('delete',  'items')) { ?>
+                <?php if (has_permission('items', '', 'delete')) { ?>
                 <a href="#" data-toggle="modal" data-table=".table-invoice-items" data-target="#items_bulk_actions"
                     class="hide bulk-actions-btn table-btn"><?php echo _l('bulk_actions'); ?></a>
                 <div class="modal fade bulk_actions" id="items_bulk_actions" tabindex="-1" role="dialog">
@@ -16,7 +16,7 @@
                                 <h4 class="modal-title"><?php echo _l('bulk_actions'); ?></h4>
                             </div>
                             <div class="modal-body">
-                                <?php if (staff_can('delete',  'items')) { ?>
+                                <?php if (has_permission('items', '', 'delete')) { ?>
                                 <div class="checkbox checkbox-danger">
                                     <input type="checkbox" name="mass_delete" id="mass_delete">
                                     <label for="mass_delete"><?php echo _l('mass_delete'); ?></label>
@@ -40,7 +40,7 @@
 
                 <?php hooks()->do_action('before_items_page_content'); ?>
 
-                <?php if (staff_can('create',  'items')) { ?>
+                <?php if (has_permission('items', '', 'create')) { ?>
                 <div class="_buttons tw-mb-2 sm:tw-mb-4 tw-inline-block tw-w-full">
                     <a href="#" class="btn btn-primary pull-left" data-toggle="modal" data-target="#sales_item_modal">
                         <i class="fa-regular fa-plus tw-mr-1"></i>
@@ -62,20 +62,21 @@
                     <div class="panel_s">
                         <div class="panel-body">
 
-<?php
-    $table_data = [
-    [
-        'name'     => '<span class="hide"> - </span><div class="checkbox mass_select_all_wrap"><input type="checkbox" id="mass_select_all" data-to-table="invoice-items"><label></label></div>',
-      'th_attrs' => ['class' => (staff_can('delete', 'items') ? '' : 'not_visible')],
-    ],
-    _l('invoice_items_list_description'),
-    _l('invoice_item_long_description'),
-    _l('invoice_items_list_rate'),
-    _l('tax_1'),
-    _l('tax_2'),
-    _l('unit'),
-    _l('item_group_name'), 
-];
+                            <?php
+    $table_data = [];
+
+    if (has_permission('items', '', 'delete')) {
+        $table_data[] = '<span class="hide"> - </span><div class="checkbox mass_select_all_wrap"><input type="checkbox" id="mass_select_all" data-to-table="invoice-items"><label></label></div>';
+    }
+
+    $table_data = array_merge($table_data, [
+      _l('invoice_items_list_description'),
+      _l('invoice_item_long_description'),
+      _l('invoice_items_list_rate'),
+      _l('tax_1'),
+      _l('tax_2'),
+      _l('unit'),
+      _l('item_group_name'), ]);
 
     $cf = get_custom_fields('items');
     foreach ($cf as $custom_field) {
@@ -104,7 +105,7 @@
                 </h4>
             </div>
             <div class="modal-body">
-                <?php if (staff_can('create',  'items')) { ?>
+                <?php if (has_permission('items', '', 'create')) { ?>
                 <div class="input-group">
                     <input type="text" name="item_group_name" id="item_group_name" class="form-control"
                         placeholder="<?php echo _l('item_group_name'); ?>">
@@ -127,10 +128,10 @@
                             </thead>
                             <tbody>
                                 <?php foreach ($items_groups as $group) { ?>
-                                <tr class="row-has-options" data-group-row-id="<?php echo e($group['id']); ?>">
-                                    <td data-order="<?php echo e($group['id']); ?>"><?php echo e($group['id']); ?></td>
-                                    <td data-order="<?php echo e($group['name']); ?>">
-                                        <span class="group_name_plain_text"><?php echo e($group['name']); ?></span>
+                                <tr class="row-has-options" data-group-row-id="<?php echo $group['id']; ?>">
+                                    <td data-order="<?php echo $group['id']; ?>"><?php echo $group['id']; ?></td>
+                                    <td data-order="<?php echo $group['name']; ?>">
+                                        <span class="group_name_plain_text"><?php echo $group['name']; ?></span>
                                         <div class="group_edit hide">
                                             <div class="input-group">
                                                 <input type="text" class="form-control">
@@ -141,12 +142,12 @@
                                             </div>
                                         </div>
                                         <div class="row-options">
-                                            <?php if (staff_can('edit',  'items')) { ?>
+                                            <?php if (has_permission('items', '', 'edit')) { ?>
                                             <a href="#" class="edit-item-group">
                                                 <?php echo _l('edit'); ?>
                                             </a>
                                             <?php } ?>
-                                            <?php if (staff_can('delete',  'items')) { ?>
+                                            <?php if (has_permission('items', '', 'delete')) { ?>
                                             | <a href="<?php echo admin_url('invoice_items/delete_group/' . $group['id']); ?>"
                                                 class="delete-item-group _delete text-danger">
                                                 <?php echo _l('delete'); ?>
@@ -172,7 +173,7 @@
 $(function() {
 
     var notSortableAndSearchableItemColumns = [];
-    <?php if (staff_can('delete',  'items')) { ?>
+    <?php if (has_permission('items', '', 'delete')) { ?>
     notSortableAndSearchableItemColumns.push(0);
     <?php } ?>
 

@@ -36,8 +36,6 @@ class Imap
      * @var \Ddeboer\Imap\Connection
      */
     protected $connection;
-    
-    protected $password;
 
     /**
      * Create new IMAP instance

@@ -5,7 +5,7 @@
 </a>
 <div class="panel_s">
     <div class="panel-body panel-table-full">
-        <?php if (staff_can('create',  'projects')) { ?>
+        <?php if (has_permission('projects', '', 'create')) { ?>
         <div class="_filters _hidden_inputs timesheets_filters hidden">
             <?php
             foreach ($timesheets_staff_ids as $t_staff_id) {
@@ -23,8 +23,8 @@
             <ul class="dropdown-menu dropdown-menu-right width300">
                 <?php foreach ($timesheets_staff_ids as $t_staff_id) { ?>
                 <li class="active">
-                    <a href="#" data-cview="staff_id_<?php echo e($t_staff_id['staff_id']); ?>"
-                        onclick="dt_custom_view(<?php echo e($t_staff_id['staff_id']); ?>,'.table-timesheets','staff_id_<?php echo e($t_staff_id['staff_id']); ?>'); return false;"><?php echo e(get_staff_full_name($t_staff_id['staff_id'])); ?>
+                    <a href="#" data-cview="staff_id_<?php echo $t_staff_id['staff_id']; ?>"
+                        onclick="dt_custom_view(<?php echo $t_staff_id['staff_id']; ?>,'.table-timesheets','staff_id_<?php echo $t_staff_id['staff_id']; ?>'); return false;"><?php echo get_staff_full_name($t_staff_id['staff_id']); ?>
                     </a>
                 </li>
                 <?php } ?>

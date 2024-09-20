@@ -26,11 +26,9 @@
 </div>
 
 <div id="timers-logout-template-warning" class="hide">
-  <h3 class="bold"><?php echo _l('timers_started_confirm_logout'); ?></h3>
+  <h2 class="bold"><?php echo _l('timers_started_confirm_logout'); ?></h2>
   <hr />
-  <a href="<?php echo admin_url('authentication/logout'); ?>" class="btn btn-danger">
-    <?php echo _l('confirm_logout'); ?>
-  </a>
+  <a href="<?php echo admin_url('authentication/logout'); ?>" class="btn btn-danger"><?php echo _l('confirm_logout'); ?></a>
 </div>
 
 <!--Lead convert to customer modal-->
@@ -38,4 +36,3 @@
 
 <!--Lead reminder modal-->
 <div id="lead_reminder_modal"></div>
-

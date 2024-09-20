@@ -20,13 +20,13 @@ $aColumns = hooks()->apply_filters('projects_timesheets_table_sql_columns', $aCo
 $join = [
     'JOIN ' . db_prefix() . 'tasks ON ' . db_prefix() . 'tasks.id = ' . db_prefix() . 'taskstimers.task_id',
     'JOIN ' . db_prefix() . 'staff ON ' . db_prefix() . 'staff.staffid = ' . db_prefix() . 'taskstimers.staff_id',
-];
+    ];
 
 $join = hooks()->apply_filters('projects_timesheets_table_sql_join', $join);
 
 $where = ['AND task_id IN (SELECT id FROM ' . db_prefix() . 'tasks WHERE rel_id="' . $this->ci->db->escape_str($project_id) . '" AND rel_type="project")'];
 
-if (staff_cant('create', 'projects')) {
+if (!has_permission('projects', '', 'create')) {
     array_push($where, 'AND ' . db_prefix() . 'taskstimers.staff_id=' . get_staff_user_id());
 }
 
@@ -51,8 +51,7 @@ $result = data_tables_init($aColumns, $sIndexColumn, $sTable, $join, $where, [
     'billable',
     db_prefix() . 'taskstimers.staff_id',
     'status',
-]);
-
+    ]);
 $output  = $result['output'];
 $rResult = $result['rResult'];
 foreach ($rResult as $aRow) {
@@ -72,11 +71,10 @@ foreach ($rResult as $aRow) {
             $_data .= '<a href="' . admin_url('staff/profile/' . $aRow['staff_id']) . '"> ' . staff_profile_image($aRow['staff_id'], [
                 'staff-profile-image-xs mright5',
                 ]) . '</a>';
-
-            if (staff_can('edit',  'staff')) {
-                $_data .= ' <a href="' . admin_url('staff/member/' . $aRow['staff_id']) . '"> ' . e($aRow['staff']) . '</a>';
+            if (has_permission('staff', '', 'edit')) {
+                $_data .= ' <a href="' . admin_url('staff/member/' . $aRow['staff_id']) . '"> ' . $aRow['staff'] . '</a>';
             } else {
-                $_data .= e($aRow['staff']);
+                $_data .= $aRow['staff'];
             }
 
             if ($user_removed_as_assignee == 1) {
@@ -84,7 +82,7 @@ foreach ($rResult as $aRow) {
             }
             $_data .= '</div>';
         } elseif ($aColumns[$i] == 'task_id') {
-            $_data = '<a href="' . admin_url('tasks/view/' . $aRow['task_id']) . '" class="mtop5 inline-block" onclick="init_task_modal(' . $aRow['task_id'] . '); return false;">' . e($aRow['name']) . '</a>';
+            $_data = '<a href="' . admin_url('tasks/view/' . $aRow['task_id']) . '" class="mtop5 inline-block" onclick="init_task_modal(' . $aRow['task_id'] . '); return false;">' . $aRow['name'] . '</a>';
 
             $_data .= '<div>';
             if ($aRow['billed'] == 1) {
@@ -96,28 +94,28 @@ foreach ($rResult as $aRow) {
 
             $status = get_task_status_by_id($aRow['status']);
 
-            $_data .= '<span class="hidden"> - </span><span class="inline-block mtop5 mleft5 label" style="border:1px solid ' . $status['color'] . ';color:' . $status['color'] . '" task-status-table="' . $aRow['status'] . '">' . e($status['name']) . '</span>';
+            $_data .= '<span class="hidden"> - </span><span class="inline-block mtop5 mleft5 label" style="border:1px solid ' . $status['color'] . ';color:' . $status['color'] . '" task-status-table="' . $aRow['status'] . '">' . $status['name'] . '</span>';
             $_data .= '</div>';
         } elseif ($aColumns[$i] == 'start_time' || $aColumns[$i] == 'end_time') {
             if ($aColumns[$i] == 'end_time' && $_data == null) {
                 $_data = '';
             } else {
-                $_data = e(_dt($_data, true));
+                $_data = _dt($_data, true);
             }
         } elseif ($i == 2) {
             $_data = render_tags($_data);
         } else {
             if ($i == 6) {
                 if ($_data == null) {
-                    $_data = e(seconds_to_time_format(time() - $aRow['start_time']));
+                    $_data = seconds_to_time_format(time() - $aRow['start_time']);
                 } else {
-                    $_data = e(seconds_to_time_format($_data));
+                    $_data = seconds_to_time_format($_data);
                 }
             } elseif ($i == 7) {
                 if ($_data == null) {
-                    $_data = e(sec2qty(time() - $aRow['start_time']));
+                    $_data = sec2qty(time() - $aRow['start_time']);
                 } else {
-                    $_data = e(sec2qty($_data));
+                    $_data = sec2qty($_data);
                 }
             }
         }
@@ -132,7 +130,7 @@ foreach ($rResult as $aRow) {
             $attrs = [
                 'class'                   => 'tw-text-neutral-500 hover:tw-text-neutral-700 focus:tw-text-neutral-700',
                 'onclick'                 => 'edit_timesheet(this,' . $aRow['id'] . ');return false',
-                'data-start_time'         => e(_dt($aRow['start_time'], true)),
+                'data-start_time'         => _dt($aRow['start_time'], true),
                 'data-timesheet_task_id'  => $aRow['task_id'],
                 'data-timesheet_staff_id' => $aRow['staff_id'],
                 'data-tags'               => $aRow['tags'],
@@ -143,7 +141,7 @@ foreach ($rResult as $aRow) {
                 $attrs['class'] .= ' tw-pointer-events-none tw-opacity-60';
             }
 
-            $attrs['data-end_time'] = e(_dt($aRow['end_time'], true));
+            $attrs['data-end_time'] = _dt($aRow['end_time'], true);
 
             $editAction = '<a href="#" ' . _attributes_to_string($attrs) . '>
                 <i class="fa-regular fa-pen-to-square fa-lg"></i>

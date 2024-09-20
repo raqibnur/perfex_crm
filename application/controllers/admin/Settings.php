@@ -14,14 +14,14 @@ class Settings extends AdminController
     /* View all settings */
     public function index()
     {
-        if (staff_cant('view', 'settings')) {
+        if (!has_permission('settings', '', 'view')) {
             access_denied('settings');
         }
 
         $tab = $this->input->get('group');
 
         if ($this->input->post()) {
-            if (staff_cant('edit', 'settings')) {
+            if (!has_permission('settings', '', 'edit')) {
                 access_denied('settings');
             }
             $logo_uploaded     = (handle_company_logo_upload() ? true : false);
@@ -142,7 +142,7 @@ class Settings extends AdminController
             redirect(admin_url('settings?group=tags'));
         }
 
-        if (staff_cant('delete', 'settings')) {
+        if (!has_permission('settings', '', 'delete')) {
             access_denied('settings');
         }
 
@@ -156,7 +156,7 @@ class Settings extends AdminController
 
     public function remove_signature_image()
     {
-        if (staff_cant('delete', 'settings')) {
+        if (!has_permission('settings', '', 'delete')) {
             access_denied('settings');
         }
 
@@ -175,7 +175,7 @@ class Settings extends AdminController
     {
         hooks()->do_action('before_remove_company_logo');
 
-        if (staff_cant('delete', 'settings')) {
+        if (!has_permission('settings', '', 'delete')) {
             access_denied('settings');
         }
 
@@ -190,25 +190,25 @@ class Settings extends AdminController
         }
 
         update_option('company_logo' . ($type == 'dark' ? '_dark' : ''), '');
-        redirect(previous_url() ?: $_SERVER['HTTP_REFERER']);
+        redirect($_SERVER['HTTP_REFERER']);
     }
 
     public function remove_fv()
     {
         hooks()->do_action('before_remove_favicon');
-        if (staff_cant('delete', 'settings')) {
+        if (!has_permission('settings', '', 'delete')) {
             access_denied('settings');
         }
         if (file_exists(get_upload_path_by_type('company') . '/' . get_option('favicon'))) {
             unlink(get_upload_path_by_type('company') . '/' . get_option('favicon'));
         }
         update_option('favicon', '');
-        redirect(previous_url() ?: $_SERVER['HTTP_REFERER']);
+        redirect($_SERVER['HTTP_REFERER']);
     }
 
     public function delete_option($name)
     {
-        if (staff_cant('delete', 'settings')) {
+        if (!has_permission('settings', '', 'delete')) {
             access_denied('settings');
         }
 
@@ -219,7 +219,7 @@ class Settings extends AdminController
 
     public function clear_sessions()
     {
-        if (staff_cant('delete', 'settings')) {
+        if (!has_permission('settings', '', 'delete')) {
             access_denied('settings');
         }
         $this->db->empty_table(db_prefix() . 'sessions');

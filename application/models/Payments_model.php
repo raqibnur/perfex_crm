@@ -92,7 +92,7 @@ class Payments_model extends App_Model
         } elseif (!is_numeric($data['paymentmode']) && !empty($data['paymentmode'])) {
             // This request will come from admin area only
             // If admin clicked the button that dont want to pay the invoice from the getaways only want
-            if (is_staff_logged_in() && staff_can('create',  'payments')) {
+            if (is_staff_logged_in() && has_permission('payments', '', 'create')) {
                 if (isset($data['do_not_redirect'])) {
                     $id = $this->add($data);
 
@@ -365,7 +365,7 @@ class Payments_model extends App_Model
                             $member['staffid'],
                             $invoice,
                             $attach,
-                            $payment->paymentid
+                            $payment->id
                         );
                     }
                 }

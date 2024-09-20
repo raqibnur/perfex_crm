@@ -22,7 +22,7 @@
                                             echo ' selected';
                                         } ?>>
                     <?php
-                    if (staff_can('view',  'tasks') || (staff_cant('view', 'tasks') && get_option('show_all_tasks_for_project_member') == 1)) {
+                    if (has_permission('tasks', '', 'view') || (!has_permission('tasks', '', 'view') && get_option('show_all_tasks_for_project_member') == 1)) {
                         echo _l('project_members');
                     } else {
                         echo _l('home_my_tasks');
@@ -37,10 +37,10 @@
             <select class="selectpicker" name="gantt_task_status" onchange="gantt_filter(this);" data-none-selected-text="<?php echo _l('task_status'); ?>">
                 <option value=""><?php echo _l('task_list_all'); ?></option>
                 <?php foreach ($task_statuses as $status) { ?>
-                    <option value="<?php echo e($status['id']); ?>" <?php if ($this->input->get('gantt_task_status') == $status['id']) {
+                    <option value="<?php echo $status['id']; ?>" <?php if ($this->input->get('gantt_task_status') == $status['id']) {
                                                                         echo ' selected';
                                                                     } ?>>
-                        <?php echo e($status['name']); ?>
+                        <?php echo $status['name']; ?>
                     </option>
                 <?php } ?>
             </select>

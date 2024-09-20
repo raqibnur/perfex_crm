@@ -2,17 +2,14 @@
 <div class="panel_s panel-table-full">
     <div class="panel-body">
         <div class="project_proposals">
-            <?php 
-                $this->load->view('admin/proposals/list_template', [
-                    'table_id'=>$proposals_table->id(), 
-                    'table' => $proposals_table, 
-                    'project'=>$project
-                ]); 
-            ?>
+            <?php $this->load->view('admin/proposals/list_template'); ?>
         </div>
     </div>
 </div>
-<?php hooks()->add_action('app_admin_footer', function () { ?>
+
+<?php
+hooks()->add_action('app_admin_footer', function () {
+    ?>
 <script>
 $(function() {
     var Proposals_ServerParams = {};
@@ -24,4 +21,5 @@ $(function() {
     init_proposal();
 })
 </script>
-<?php }) ?>
+<?php
+}) ?>

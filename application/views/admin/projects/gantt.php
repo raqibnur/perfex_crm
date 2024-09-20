@@ -12,9 +12,9 @@
                     <select class="selectpicker" data-none-selected-text="<?php echo _l('all'); ?>" name="status[]"
                         data-width="100%" multiple="true">
                         <?php foreach ($statuses as $status) { ?>
-                        <option value="<?php echo e($status['id']); ?>"
+                        <option value="<?php echo $status['id']; ?>"
                             <?php echo in_array($status['id'], $selected_statuses) ? ' selected' : ''; ?>>
-                            <?php echo e($status['name']); ?>
+                            <?php echo $status['name']; ?>
                         </option>
                         <?php } ?>
                     </select>
@@ -24,15 +24,15 @@
         * Only show this filter if user has permission for projects view otherwise
         * wont need this becuase by default this filter will be applied
         */
-        if (staff_can('view',  'projects')) { ?>
+        if (has_permission('projects', '', 'view')) { ?>
                 <div class="tw-flex-1">
                     <select class="selectpicker" data-live-search="true"
                         data-title="<?php echo _l('project_member'); ?>" name="member" data-width="100%">
                         <option value=""></option>
                         <?php foreach ($project_members as $member) { ?>
-                        <option value="<?php echo e($member['staff_id']); ?>"
+                        <option value="<?php echo $member['staff_id']; ?>"
                             <?php echo $selectedMember == $member['staff_id'] ? ' selected' : ''; ?>>
-                            <?php echo e($member['firstname'] . ' ' . $member['lastname']); ?>
+                            <?php echo $member['firstname'] . ' ' . $member['lastname']; ?>
                         </option>
                         <?php } ?>
                         </option>

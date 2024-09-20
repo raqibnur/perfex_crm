@@ -7,8 +7,8 @@
 (function(){
 	"use strict";
 	var // jQuery and jQueryUI version
-		jqver = '3.7.1',
-		uiver = '1.13.2',
+		jqver = '3.6.0',
+		uiver = '1.12.1',
 		
 		// Detect language (optional)
 		lang = (function() {

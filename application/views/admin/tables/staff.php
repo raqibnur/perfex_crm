@@ -2,7 +2,7 @@
 
 defined('BASEPATH') or exit('No direct script access allowed');
 
-$has_permission_delete = staff_can('delete',  'staff');
+$has_permission_delete = has_permission('staff', '', 'delete');
 
 $custom_fields = get_custom_fields('staff', [
     'show_on_table' => 1,
@@ -53,7 +53,7 @@ foreach ($rResult as $aRow) {
         }
         if ($aColumns[$i] == 'last_login') {
             if ($_data != null) {
-                $_data = '<span class="text-has-action is-date" data-toggle="tooltip" data-title="' . e(_dt($_data)) . '">' . time_ago($_data) . '</span>';
+                $_data = '<span class="text-has-action is-date" data-toggle="tooltip" data-title="' . _dt($_data) . '">' . time_ago($_data) . '</span>';
             } else {
                 $_data = 'Never';
             }
@@ -64,7 +64,7 @@ foreach ($rResult as $aRow) {
             }
 
             $_data = '<div class="onoffswitch">
-                <input type="checkbox" ' . (($aRow['staffid'] == get_staff_user_id() || (is_admin($aRow['staffid']) || staff_cant('edit', 'staff')) && !is_admin()) ? 'disabled' : '') . ' data-switch-url="' . admin_url() . 'staff/change_staff_status" name="onoffswitch" class="onoffswitch-checkbox" id="c_' . $aRow['staffid'] . '" data-id="' . $aRow['staffid'] . '" ' . $checked . '>
+                <input type="checkbox" ' . (($aRow['staffid'] == get_staff_user_id() || (is_admin($aRow['staffid']) || !has_permission('staff', '', 'edit')) && !is_admin()) ? 'disabled' : '') . ' data-switch-url="' . admin_url() . 'staff/change_staff_status" name="onoffswitch" class="onoffswitch-checkbox" id="c_' . $aRow['staffid'] . '" data-id="' . $aRow['staffid'] . '" ' . $checked . '>
                 <label class="onoffswitch-label" for="c_' . $aRow['staffid'] . '"></label>
             </div>';
 
@@ -74,7 +74,7 @@ foreach ($rResult as $aRow) {
             $_data = '<a href="' . admin_url('staff/profile/' . $aRow['staffid']) . '">' . staff_profile_image($aRow['staffid'], [
                 'staff-profile-image-small',
                 ]) . '</a>';
-            $_data .= ' <a href="' . admin_url('staff/member/' . $aRow['staffid']) . '">' . e($aRow['firstname'] . ' ' . $aRow['lastname']) . '</a>';
+            $_data .= ' <a href="' . admin_url('staff/member/' . $aRow['staffid']) . '">' . $aRow['firstname'] . ' ' . $aRow['lastname'] . '</a>';
 
             $_data .= '<div class="row-options">';
             $_data .= '<a href="' . admin_url('staff/member/' . $aRow['staffid']) . '">' . _l('view') . '</a>';
@@ -87,7 +87,7 @@ foreach ($rResult as $aRow) {
 
             $_data .= '</div>';
         } elseif ($aColumns[$i] == 'email') {
-            $_data = '<a href="mailto:' . e($_data) . '">' . e($_data) . '</a>';
+            $_data = '<a href="mailto:' . $_data . '">' . $_data . '</a>';
         } else {
             if (strpos($aColumns[$i], 'date_picker_') !== false) {
                 $_data = (strpos($_data, ' ') !== false ? _dt($_data) : _d($_data));

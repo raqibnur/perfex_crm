@@ -49,7 +49,7 @@
                             <div role="tabpanel" class="tab-pane" id="tab_form_integration">
                                 <p><?php echo _l('form_integration_code_help'); ?></p>
                                 <textarea class="form-control"
-                                    rows="2"><iframe width="600" height="850" src="<?php echo site_url('forms/quote/' . $form->form_key); ?>" frameborder="0" sandbox="allow-top-navigation allow-forms allow-scripts allow-same-origin allow-popups" allowfullscreen></iframe></textarea>
+                                    rows="2"><iframe width="600" height="850" src="<?php echo site_url('forms/quote/' . $form->form_key); ?>" frameborder="0" sandbox="allow-top-navigation allow-forms allow-same-origin allow-popups" allowfullscreen></iframe></textarea>
                                 <h4 class="tw-my-5 bold">Share direct link</h4>
                                 <p>
                                     <span class="label label-default">
@@ -156,9 +156,9 @@
                                                     data-none-selected-text="<?php echo _l('dropdown_non_selected_tex'); ?>">
                                                     <option value=""></option>
                                                     <?php foreach ($languages as $availableLanguage) { ?>
-                                                    <option value="<?php echo e($availableLanguage); ?>"
+                                                    <option value="<?php echo $availableLanguage; ?>"
                                                         <?php echo(isset($form) && $form->language == $availableLanguage) || (!isset($form) && get_option('active_language') == $availableLanguage) ? ' selected' : ''; ?>>
-                                                        <?php echo e(ucfirst($availableLanguage)); ?>
+                                                        <?php echo ucfirst($availableLanguage); ?>
                                                     </option>
                                                     <?php } ?>
                                                 </select>

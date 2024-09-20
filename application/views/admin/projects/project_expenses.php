@@ -2,33 +2,28 @@
 
 <div id="expenses_total" class="tw-mb-4"></div>
 
-<?php if (staff_can('create',  'expenses')) { ?>
-    <a href="#" data-toggle="modal" data-target="#new_project_expense" class="btn btn-primary tw-mb-4">
-        <i class="fa-regular fa-plus tw-mr-1"></i>
-        <?php echo _l('new_expense'); ?>
-    </a>
+<?php if (has_permission('expenses', '', 'create')) { ?>
+<a href="#" data-toggle="modal" data-target="#new_project_expense" class="btn btn-primary tw-mb-4">
+    <i class="fa-regular fa-plus tw-mr-1"></i>
+    <?php echo _l('new_expense'); ?>
+</a>
 <?php } ?>
-
-<div id="vueApp" class="tw-inline pull-right tw-ml-0 sm:tw-ml-1.5">
-    <app-filters 
-            id="<?php echo $expenses_table->id(); ?>" 
-            view="<?php echo $expenses_table->viewName(); ?>"
-            :saved-filters="<?php echo $expenses_table->filtersJs(); ?>"
-            :available-rules="<?php echo $expenses_table->rulesJs(); ?>">
-    </app-filters>
-</div>
-
+<?php
+   $data_expenses_filter['total_unbilled']    = $this->db->query('SELECT count(*) as num_rows FROM ' . db_prefix() . 'expenses WHERE (SELECT 1 from ' . db_prefix() . 'invoices WHERE ' . db_prefix() . 'invoices.id = ' . db_prefix() . 'expenses.invoiceid AND status != 2)')->row()->num_rows;
+   $data_expenses_filter['categories']        = $expense_categories;
+   $data_expenses_filter['filter_table_name'] = '.table-project-expenses';
+   $data_expenses_filter['years']             = $this->expenses_model->get_expenses_years();
+   $this->load->view('admin/expenses/filter_by_template', $data_expenses_filter); ?>
 <div class="clearfix"></div>
 <div class="panel_s panel-table-full">
     <div class="panel-body">
-    <?php
-        echo form_hidden('custom_view');
-        $this->load->view('admin/expenses/table_html', [
-            'class'           => 'project-expenses',
-            'withBulkActions' => false,
-            'table_id'=>'project_expenses'
-        ]);
-    ?>
+        <?php
+   echo form_hidden('custom_view');
+   $this->load->view('admin/expenses/table_html', [
+      'class'           => 'project-expenses',
+      'withBulkActions' => false,
+   ]);
+   ?>
     </div>
 </div>
 <div class="modal fade" id="new_project_expense" tabindex="-1" role="dialog">
@@ -38,7 +33,7 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                         aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title"><?php echo e(_l('add_new', _l('expense_lowercase'))); ?></h4>
+                <h4 class="modal-title"><?php echo _l('add_new', _l('expense_lowercase')); ?></h4>
             </div>
             <div class="modal-body">
                 <div id="dropzoneDragArea" class="dz-default dz-message">
@@ -60,8 +55,8 @@
                                 data-none-selected-text="<?php echo _l('dropdown_non_selected_tex'); ?>">
                                 <option value=""><?php echo _l('no_tax'); ?></option>
                                 <?php foreach ($taxes as $tax) { ?>
-                                <option value="<?php echo e($tax['id']); ?>" data-subtext="<?php echo e($tax['name']); ?>">
-                                    <?php echo e($tax['taxrate']); ?>%</option>
+                                <option value="<?php echo $tax['id']; ?>" data-subtext="<?php echo $tax['name']; ?>">
+                                    <?php echo $tax['taxrate']; ?>%</option>
                                 <?php } ?>
                             </select>
                         </div>
@@ -73,8 +68,8 @@
                                 data-none-selected-text="<?php echo _l('dropdown_non_selected_tex'); ?>" disabled>
                                 <option value=""><?php echo _l('no_tax'); ?></option>
                                 <?php foreach ($taxes as $tax) { ?>
-                                <option value="<?php echo e($tax['id']); ?>" data-subtext="<?php echo e($tax['name']); ?>">
-                                    <?php echo e($tax['taxrate']); ?>%</option>
+                                <option value="<?php echo $tax['id']; ?>" data-subtext="<?php echo $tax['name']; ?>">
+                                    <?php echo $tax['taxrate']; ?>%</option>
                                 <?php } ?>
                             </select>
                         </div>

@@ -78,15 +78,12 @@ class Announcements extends AdminController
         if (!is_admin()) {
             access_denied('Announcement');
         }
-
         $response = $this->announcements_model->delete($id);
-
         if ($response == true) {
             set_alert('success', _l('deleted', _l('announcement')));
         } else {
             set_alert('warning', _l('problem_deleting', _l('announcement_lowercase')));
         }
-
-        redirect(admin_url('announcements'));
+        redirect($_SERVER['HTTP_REFERER']);
     }
 }

@@ -15,9 +15,6 @@ use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
 
-/**
- * PLEASE NOTE that this class contains preview products that are subject to change. Use them with caution. If you currently do not have developer preview access, please contact help@twilio.com.
- */
 class InsightsUserRolesContext extends InstanceContext {
     /**
      * Initialize the InsightsUserRolesContext
@@ -43,7 +40,7 @@ class InsightsUserRolesContext extends InstanceContext {
     public function fetch(array $options = []): InsightsUserRolesInstance {
         $options = new Values($options);
 
-        $headers = Values::of(['Authorization' => $options['authorization'], ]);
+        $headers = Values::of(['Token' => $options['token'], ]);
 
         $payload = $this->version->fetch('GET', $this->uri, [], [], $headers);
 

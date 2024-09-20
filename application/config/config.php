@@ -1,7 +1,7 @@
 <?php
 
 defined('BASEPATH') or exit('No direct script access allowed');
-define('APP_MINIMUM_REQUIRED_PHP_VERSION', '8.0');
+define('APP_MINIMUM_REQUIRED_PHP_VERSION', '7.4');
 
 if (file_exists(APPPATH . 'config/app-config.php')) {
     if (version_compare(PHP_VERSION, APP_MINIMUM_REQUIRED_PHP_VERSION) === -1) {
@@ -485,7 +485,7 @@ $config['csrf_token_name']   = defined('APP_CSRF_TOKEN_NAME') ? APP_CSRF_TOKEN_N
 $config['csrf_cookie_name']  = defined('APP_CSRF_COOKIE_NAME') ? APP_CSRF_COOKIE_NAME : 'csrf_cookie_name';
 $config['csrf_expire']       = defined('APP_CSRF_EXPIRE') ? APP_CSRF_EXPIRE : 3660;
 $config['csrf_regenerate']   = false;
-$config['csrf_exclude_uris'] = ['forms/wtl/[0-9a-z]+', 'forms/ticket', 'forms/quote/[0-9a-z]+', 'admin/tasks/timer_tracking', 'api\/.+', 'razorpay/success\/.+'];
+$config['csrf_exclude_uris'] = ['forms/wtl/[0-9a-z]+', 'forms/ticket', 'forms/quote/[0-9a-z]+', 'admin/tasks/timer_tracking', 'api\/.+'];
 
 if (isset($app_csrf_exclude_uris)) {
     $config['csrf_exclude_uris'] = array_merge($config['csrf_exclude_uris'], $app_csrf_exclude_uris);

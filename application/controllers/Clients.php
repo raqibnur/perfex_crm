@@ -850,16 +850,11 @@ class Clients extends ClientsController
         }
 
         $data = [];
-        
         // Default to this month
         $from = _d(date('Y-m-01'));
         $to   = _d(date('Y-m-t'));
 
         if ($this->input->get('from') && $this->input->get('to')) {
-            if(!is_string($this->input->get('from')) || !is_string($this->input->get('from'))) {
-                redirect(site_url('clients/statement'));
-            }
-
             $from = $this->input->get('from');
             $to   = $this->input->get('to');
         }
@@ -927,10 +922,6 @@ class Clients extends ClientsController
 
         $from = $this->input->get('from');
         $to   = $this->input->get('to');
-
-        if(!is_string($from) && !is_string($to)) {
-            show_404();
-        }
 
         $data['statement'] = $this->clients_model->get_statement(
             get_client_user_id(),
@@ -1192,7 +1183,7 @@ class Clients extends ClientsController
     public function dismiss_announcement($id)
     {
         $this->misc_model->dismiss_announcement($id, false);
-        redirect(previous_url() ?: $_SERVER['HTTP_REFERER']);
+        redirect($_SERVER['HTTP_REFERER']);
     }
 
     public function update_credit_card()
@@ -1391,7 +1382,7 @@ class Clients extends ClientsController
             set_alert('danger', $e->getMessage());
         }
 
-        redirect(site_url('clients/subscriptions'));
+        redirect($_SERVER['HTTP_REFERER']);
     }
 
     public function gdpr()
@@ -1428,7 +1419,11 @@ class Clients extends ClientsController
 
         set_contact_language($lang);
 
-        redirect(previous_url() ?: $_SERVER['HTTP_REFERER']);
+        if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
+            redirect($_SERVER['HTTP_REFERER']);
+        } else {
+            redirect(site_url());
+        }
     }
 
     public function export()
@@ -1487,10 +1482,10 @@ class Clients extends ClientsController
                 foreach ($payments as $payment) {
                     $_month = date('F', strtotime($payment['date']));
                     if ($_month == $month) {
-                        $data['temp'][$i][] = round($payment['amount'], get_decimal_places());
+                        $data['temp'][$i][] = $payment['amount'];
                     }
                 }
-                $data['total'][] = round(array_sum($data['temp'][$i]), get_decimal_places());
+                $data['total'][] = array_sum($data['temp'][$i]);
                 $i++;
             }
 

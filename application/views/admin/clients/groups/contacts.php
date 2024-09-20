@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed'); ?>
 <?php if (isset($client)) { ?>
 <h4 class="customer-profile-group-heading">
-    <?php echo e(is_empty_customer_company($client->userid) ? _l('contact') : _l('customer_contacts')); ?></h4>
+    <?php echo is_empty_customer_company($client->userid) ? _l('contact') : _l('customer_contacts'); ?></h4>
 <?php if ($this->session->flashdata('gdpr_delete_warning')) { ?>
 <div class="alert alert-warning">
     [GDPR] The contact you removed has associated proposals using the email address of the contact and other personal
@@ -9,14 +9,14 @@
     proposals linked to this contact.
 </div>
 <?php } ?>
-<?php if ((staff_can('create',  'customers') || is_customer_admin($client->userid)) && $client->registration_confirmed == '1') {
+<?php if ((has_permission('customers', '', 'create') || is_customer_admin($client->userid)) && $client->registration_confirmed == '1') {
     $disable_new_contacts = false;
     if (is_empty_customer_company($client->userid) && total_rows(db_prefix() . 'contacts', ['userid' => $client->userid]) == 1) {
         $disable_new_contacts = true;
     } ?>
 <div class="inline-block new-contact-wrapper" data-title="<?php echo _l('customer_contact_person_only_one_allowed'); ?>"
     <?php if ($disable_new_contacts) { ?> data-toggle="tooltip" <?php } ?>>
-    <a href="#" onclick="contact(<?php echo e($client->userid); ?>); return false;" class="btn btn-primary new-contact mbot15<?php if ($disable_new_contacts) {
+    <a href="#" onclick="contact(<?php echo $client->userid; ?>); return false;" class="btn btn-primary new-contact mbot15<?php if ($disable_new_contacts) {
         echo ' disabled';
     } ?>">
         <i class="fa-regular fa-plus tw-mr-1"></i>

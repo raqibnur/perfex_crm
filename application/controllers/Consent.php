@@ -9,12 +9,8 @@ class Consent extends ClientsController
         show_404();
     }
 
-    public function contact($key = '')
+    public function contact($key)
     {
-        if (!$key) {
-            show_404();
-        }
-
         if (is_gdpr() && get_option('gdpr_enable_consent_for_contacts') == '0' || !is_gdpr()) {
             show_error('This page is currently disabled, check back later.');
         }
@@ -48,8 +44,7 @@ class Consent extends ClientsController
                     ]);
                 }
             }
-
-            redirect(site_url('consent/contact/' . $key));
+            redirect($_SERVER['HTTP_REFERER']);
         }
 
         $data['contact']  = $contact;
@@ -66,12 +61,8 @@ class Consent extends ClientsController
         $this->layout();
     }
 
-    public function l($hash = '')
+    public function l($hash)
     {
-        if (!$hash) {
-            show_404();
-        }
-
         if (is_gdpr() && get_option('gdpr_enable_consent_for_leads') == '0' || !is_gdpr()) {
             show_error('This page is currently disabled, check back later.');
         }
@@ -98,7 +89,7 @@ class Consent extends ClientsController
                     ]);
                 }
             }
-            redirect(site_url('consent/l/' . $hash));
+            redirect($_SERVER['HTTP_REFERER']);
         }
 
         $data['lead']     = $lead;

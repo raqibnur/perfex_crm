@@ -17,55 +17,57 @@
     <?php
     $custom_fields = get_custom_fields('tickets',array('show_on_client_portal'=>1));
     foreach($custom_fields as $field){ ?>
-      <th><?php echo e($field['name']); ?></th>
+      <th><?php echo $field['name']; ?></th>
     <?php } ?>
   </thead>
   <tbody>
     <?php foreach($tickets as $ticket){ ?>
       <tr class="<?php if($ticket['clientread'] == 0){echo 'text-danger';} ?>">
-        <td data-order="<?php echo e($ticket['ticketid']); ?>">
+        <td data-order="<?php echo $ticket['ticketid']; ?>">
           <a href="<?php echo site_url('clients/ticket/'.$ticket['ticketid']); ?>">
-            #<?php echo e($ticket['ticketid']); ?>
+            #<?php echo $ticket['ticketid']; ?>
           </a>
         </td>
         <td>
           <a href="<?php echo site_url('clients/ticket/'.$ticket['ticketid']); ?>">
-            <?php echo e($ticket['subject']); ?>
+            <?php echo $ticket['subject']; ?>
           </a>
         </td>
         <?php if($show_submitter_on_table) { ?>
           <td>
-            <?php echo e($ticket['user_firstname'] . ' ' . $ticket['user_lastname']);  ?>
+            <?php echo $ticket['user_firstname'] . ' ' . $ticket['user_lastname'];  ?>
           </td>
         <?php } ?>
         <td>
-          <?php echo e($ticket['department_name']); ?>
+          <?php echo $ticket['department_name']; ?>
         </td>
         <td>
           <?php
           if($ticket['project_id'] != 0){
-            echo '<a href="'.site_url('clients/project/'.$ticket['project_id']).'">'.e(get_project_name_by_id($ticket['project_id'])).'</a>';
+            echo '<a href="'.site_url('clients/project/'.$ticket['project_id']).'">'.get_project_name_by_id($ticket['project_id']).'</a>';
           }
           ?>
         </td>
         <?php if(get_option('services') == 1){ ?>
           <td>
-            <?php echo e($ticket['service_name']); ?>
+            <?php echo $ticket['service_name']; ?>
           </td>
         <?php } ?>
         <td>
-          <?php echo e(ticket_priority_translate($ticket['priority'])); ?>
+          <?php
+          echo ticket_priority_translate($ticket['priority']);
+          ?>
         </td>
         <td>
-          <span class="label inline-block" style="background:<?php echo e($ticket['statuscolor']); ?>">
-            <?php echo e(ticket_status_translate($ticket['ticketstatusid'])); ?></span>
+          <span class="label inline-block" style="background:<?php echo $ticket['statuscolor']; ?>">
+            <?php echo ticket_status_translate($ticket['ticketstatusid']); ?></span>
           </td>
-          <td data-order="<?php echo e($ticket['lastreply']); ?>">
+          <td data-order="<?php echo $ticket['lastreply']; ?>">
             <?php
             if ($ticket['lastreply'] == NULL) {
              echo _l('client_no_reply');
            } else {
-             echo e(_dt($ticket['lastreply']));
+             echo _dt($ticket['lastreply']);
            }
            ?>
          </td>

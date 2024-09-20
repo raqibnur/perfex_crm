@@ -13,7 +13,7 @@ class Email_schedule_invoice extends AdminController
 
     public function create($id)
     {
-        if (staff_cant('create', 'invoices')) {
+        if (!staff_can('create', 'invoices')) {
             ajax_access_denied();
         }
 

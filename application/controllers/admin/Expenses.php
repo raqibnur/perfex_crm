@@ -1,7 +1,5 @@
 <?php
 
-use app\services\utilities\Arr;
-
 defined('BASEPATH') or exit('No direct script access allowed');
 
 class Expenses extends AdminController
@@ -21,7 +19,7 @@ class Expenses extends AdminController
     {
         close_setup_menu();
 
-        if (staff_cant('view', 'expenses') && staff_cant('view_own', 'expenses')) {
+        if (!has_permission('expenses', '', 'view') && !has_permission('expenses', '', 'view_own')) {
             access_denied('expenses');
         }
 
@@ -30,7 +28,6 @@ class Expenses extends AdminController
         $data['expenseid']     = $id;
         $data['categories']    = $this->expenses_model->get_category();
         $data['years']         = $this->expenses_model->get_expenses_years();
-        $data['table']         = App_table::find('expenses');
         $data['title']         = _l('expenses');
 
         $this->load->view('admin/expenses/manage', $data);
@@ -38,14 +35,13 @@ class Expenses extends AdminController
 
     public function table($clientid = '')
     {
-        if (staff_cant('view', 'expenses') && staff_cant('view_own', 'expenses')) {
+        if (!has_permission('expenses', '', 'view') && !has_permission('expenses', '', 'view_own')) {
             ajax_access_denied();
         }
 
         $this->load->model('payment_modes_model');
         $data['payment_modes'] = $this->payment_modes_model->get('', [], true);
-
-        App_table::find('expenses')->output([
+        $this->app->get_table_data('expenses', [
             'clientid' => $clientid,
             'data'     => $data,
         ]);
@@ -55,7 +51,7 @@ class Expenses extends AdminController
     {
         if ($this->input->post()) {
             if ($id == '') {
-                if (staff_cant('create', 'expenses')) {
+                if (!has_permission('expenses', '', 'create')) {
                     set_alert('danger', _l('access_denied'));
                     echo json_encode([
                         'url' => admin_url('expenses/expense'),
@@ -76,7 +72,7 @@ class Expenses extends AdminController
                 ]);
                 die;
             }
-            if (staff_cant('edit', 'expenses')) {
+            if (!has_permission('expenses', '', 'edit')) {
                 set_alert('danger', _l('access_denied'));
                 echo json_encode([
                         'url' => admin_url('expenses/expense/' . $id),
@@ -98,7 +94,7 @@ class Expenses extends AdminController
         } else {
             $data['expense'] = $this->expenses_model->get($id);
 
-            if (!$data['expense'] || (staff_cant('view', 'expenses') && $data['expense']->addedfrom != get_staff_user_id())) {
+            if (!$data['expense'] || (!has_permission('expenses', '', 'view') && $data['expense']->addedfrom != get_staff_user_id())) {
                 blank_page(_l('expense_not_found'));
             }
 
@@ -126,7 +122,7 @@ class Expenses extends AdminController
 
     public function import()
     {
-        if (staff_cant('create', 'expenses')) {
+        if (!staff_can('create', 'expenses')) {
             access_denied('Items Import');
         }
 
@@ -221,8 +217,6 @@ class Expenses extends AdminController
             if (count($data['expenses_years']) >= 1 && $data['expenses_years'][0]['year'] != date('Y')) {
                 array_unshift($data['expenses_years'], ['year' => date('Y')]);
             }
-            
-            $data['expenses_years'] = Arr::uniqueByKey($data['expenses_years'], 'year');
 
             $data['_currency'] = $data['totals']['currencyid'];
             $this->load->view('admin/expenses/expenses_total_template', $data);
@@ -234,7 +228,7 @@ class Expenses extends AdminController
     {
         $expense = $this->expenses_model->get($id);
 
-        if (staff_cant('view', 'expenses') && $expense->addedfrom != get_staff_user_id()) {
+        if (!has_permission('expenses', '', 'view') && $expense->addedfrom != get_staff_user_id()) {
             access_denied();
         }
 
@@ -245,7 +239,7 @@ class Expenses extends AdminController
 
     public function delete($id)
     {
-        if (staff_cant('delete', 'expenses')) {
+        if (!has_permission('expenses', '', 'delete')) {
             access_denied('expenses');
         }
         if (!$id) {
@@ -262,12 +256,16 @@ class Expenses extends AdminController
             }
         }
 
-        redirect(previous_url() ?: $_SERVER['HTTP_REFERER']);
+        if (strpos($_SERVER['HTTP_REFERER'], 'expenses/') !== false) {
+            redirect(admin_url('expenses/list_expenses'));
+        } else {
+            redirect($_SERVER['HTTP_REFERER']);
+        }
     }
 
     public function copy($id)
     {
-        if (staff_cant('create', 'expenses')) {
+        if (!has_permission('expenses', '', 'create')) {
             access_denied('expenses');
         }
         $new_expense_id = $this->expenses_model->copy($id);
@@ -282,7 +280,7 @@ class Expenses extends AdminController
 
     public function convert_to_invoice($id)
     {
-        if (staff_cant('create', 'invoices')) {
+        if (!has_permission('invoices', '', 'create')) {
             access_denied('Convert Expense to Invoice');
         }
         if (!$id) {
@@ -314,13 +312,13 @@ class Expenses extends AdminController
 
     public function get_expense_data_ajax($id)
     {
-        if (staff_cant('view', 'expenses') && staff_cant('view_own', 'expenses')) {
+        if (!has_permission('expenses', '', 'view') && !has_permission('expenses', '', 'view_own')) {
             echo _l('access_denied');
             die;
         }
         $expense = $this->expenses_model->get($id);
 
-        if (!$expense || (staff_cant('view', 'expenses') && $expense->addedfrom != get_staff_user_id())) {
+        if (!$expense || (!has_permission('expenses', '', 'view') && $expense->addedfrom != get_staff_user_id())) {
             echo _l('expense_not_found');
             die;
         }

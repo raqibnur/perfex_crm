@@ -19,7 +19,6 @@ module.exports = {
     "./assets/js/app.js",
     "./assets/js/map.js",
     "./install/*.php",
-    "./resources/js/**/*.vue"
   ],
   safelist: [
     {

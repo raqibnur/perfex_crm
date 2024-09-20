@@ -11,7 +11,6 @@ use Puli\GeneratedPuliFactory;
  * Find candidates using Puli.
  *
  * @internal
- *
  * @final
  *
  * @author David de Boer <david@ddeboer.nl>
@@ -72,6 +71,9 @@ class PuliBetaStrategy implements DiscoveryStrategy
         return self::$puliDiscovery;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public static function getCandidates($type)
     {
         $returnData = [];

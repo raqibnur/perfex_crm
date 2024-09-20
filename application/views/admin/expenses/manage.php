@@ -6,7 +6,7 @@
             <div class="col-md-12">
                 <div class="tw-mb-2 sm:tw-mb-4">
                     <div class="_buttons">
-                        <?php if (staff_can('create',  'expenses')) { ?>
+                        <?php if (has_permission('expenses', '', 'create')) { ?>
                         <a href="<?php echo admin_url('expenses/expense'); ?>" class="btn btn-primary">
                             <i class="fa-regular fa-plus tw-mr-1"></i>
                             <?php echo _l('new_expense'); ?>
@@ -16,15 +16,7 @@
                             <?php echo _l('import_expenses'); ?>
                         </a>
                         <?php } ?>
-                        <div id="vueApp" class="tw-inline pull-right tw-ml-0 sm:tw-ml-1.5">
-                            <app-filters 
-                                id="<?php echo $table->id(); ?>" 
-                                view="<?php echo $table->viewName(); ?>"
-                                :saved-filters="<?php echo $table->filtersJs(); ?>"
-                                :available-rules="<?php echo $table->rulesJs(); ?>">
-                            </app-filters>
-                        </div>
-
+                        <?php $this->load->view('admin/expenses/filter_by_template'); ?>
                         <a href="#" onclick="slideToggle('#stats-top'); return false;"
                             class="pull-right btn btn-default mleft5 btn-with-tooltip" data-toggle="tooltip"
                             title="<?php echo _l('view_stats_tooltip'); ?>"><i class="fa fa-bar-chart"></i></a>
@@ -111,7 +103,14 @@ var hidden_columns = [4, 5, 6, 7, 8, 9];
 <script>
 Dropzone.autoDiscover = false;
 $(function() {
-    initDataTable('.table-expenses', admin_url + 'expenses/table', [0], [0], {},
+    // Expenses additional server params
+    var Expenses_ServerParams = {};
+
+    $.each($('._hidden_inputs._filters input'), function() {
+        Expenses_ServerParams[$(this).attr('name')] = '[name="' + $(this).attr('name') + '"]';
+    });
+
+    initDataTable('.table-expenses', admin_url + 'expenses/table', [0], [0], Expenses_ServerParams,
             <?php echo hooks()->apply_filters('expenses_table_default_order', json_encode([6, 'desc'])); ?>)
         .column(1).visible(false, false).columns.adjust();
 

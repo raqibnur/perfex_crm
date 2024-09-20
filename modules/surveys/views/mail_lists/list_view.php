@@ -5,7 +5,7 @@
         <div class="row">
             <div class="col-md-12">
                 <?php if ($fixedlist == false) { ?>
-                <?php if (staff_can('create',  'surveys')) { ?>
+                <?php if (has_permission('surveys', '', 'create')) { ?>
                 <div class="_buttons tw-mb-2 sm:tw-mb-4">
                     <a href="#" class="btn btn-default mright5" data-toggle="modal"
                         data-target="#import_emails"><?php echo _l('btn_import_emails'); ?></a>
@@ -21,13 +21,13 @@
                         <div class="row">
                             <div class="col-md-3">
                                 <?php
-                                    echo render_select('view_status', $statuses, ['id', 'name'], '', '', ['data-width' => '100%', 'data-none-selected-text' => _l('leads_dt_status')]);
-                                ?>
+                           echo render_select('view_status', $statuses, ['id', 'name'], '', '', ['data-width' => '100%', 'data-none-selected-text' => _l('leads_dt_status')]);
+                           ?>
                             </div>
                             <div class="col-md-3">
                                 <?php
-                                    echo render_select('view_source', $sources, ['id', 'name'], '', '', ['data-width' => '100%', 'data-none-selected-text' => _l('leads_source')]);
-                                ?>
+                           echo render_select('view_source', $sources, ['id', 'name'], '', '', ['data-width' => '100%', 'data-none-selected-text' => _l('leads_source')]);
+                           ?>
                             </div>
                             <div class="col-md-3">
                                 <div class="select-placeholder">
@@ -41,8 +41,8 @@
                                         <?php if (isset($consent_purposes)) { ?>
                                         <optgroup label="<?php echo _l('gdpr_consent'); ?>">
                                             <?php foreach ($consent_purposes as $purpose) { ?>
-                                            <option value="consent_<?php echo e($purpose['id']); ?>">
-                                                <?php echo e($purpose['name']); ?>
+                                            <option value="consent_<?php echo $purpose['id']; ?>">
+                                                <?php echo $purpose['name']; ?>
                                             </option>
                                             <?php } ?>
                                         </optgroup>
@@ -60,8 +60,7 @@
                                         title="<?php echo _l('customer_groups'); ?> - <?php echo _l('customers_sort_all'); ?>"
                                         multiple id="customer_groups" class="selectpicker" data-width="100%">
                                         <?php foreach ($groups as $group) { ?>
-                                        <option value="<?php echo e($group['id']); ?>">
-                                            <?php echo e($group['name']); ?>
+                                        <option value="<?php echo $group['id']; ?>"><?php echo $group['name']; ?>
                                         </option>
                                         <?php } ?>
                                     </select>
@@ -73,8 +72,8 @@
                                     <select name="consent" title="<?php echo _l('gdpr_consent'); ?>" id="consent"
                                         class="selectpicker" data-width="100%">
                                         <?php foreach ($consent_purposes as $purpose) { ?>
-                                        <option value="<?php echo e($purpose['id']); ?>">
-                                            <?php echo e($purpose['name']); ?>
+                                        <option value="<?php echo $purpose['id']; ?>">
+                                            <?php echo $purpose['name']; ?>
                                         </option>
                                         <?php } ?>
                                     </select>
@@ -124,7 +123,7 @@
                                     <th><?php echo _l('mail_lists_view_email_date_heading'); ?></th>
                                     <?php if (isset($custom_fields) && count($custom_fields) > 0) {
                                   foreach ($custom_fields as $field) { ?>
-                                    <th><?php echo e($field['fieldname']); ?></th>
+                                    <th><?php echo $field['fieldname']; ?></th>
                                     <?php
                               }
                               }
@@ -147,7 +146,7 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                         aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="myModalLabel"><?php echo e(_l('add_new_email_to', $list->name)); ?></h4>
+                <h4 class="modal-title" id="myModalLabel"><?php echo _l('add_new_email_to', $list->name); ?></h4>
             </div>
             <?php echo form_open('admin/surveys/add_email_to_list', ['id' => 'add_single_email_form']); ?>
             <div class="modal-body">
@@ -179,7 +178,7 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                         aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="myModalLabel"><?php echo e(_l('import_emails_to', $list->name)); ?></h4>
+                <h4 class="modal-title" id="myModalLabel"><?php echo _l('import_emails_to', $list->name); ?></h4>
             </div>
             <?php echo form_open_multipart('admin/surveys/import_emails', ['id' => 'import_emails_form']); ?>
             <div class="modal-body">
@@ -191,7 +190,7 @@
                      if (count($custom_fields) > 0) { ?>
                         <p class="nomargin bold"><?php echo _l('mail_list_available_custom_fields'); ?></p>
                         <?php foreach ($custom_fields as $field) { ?>
-                        <p><?php echo e($field['fieldname']); ?></p>
+                        <p><?php echo $field['fieldname']; ?></p>
                         <?php }
                      }
                      ?>

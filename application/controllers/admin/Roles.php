@@ -7,7 +7,7 @@ class Roles extends AdminController
     /* List all staff roles */
     public function index()
     {
-        if (staff_cant('view', 'roles')) {
+        if (!has_permission('roles', '', 'view')) {
             access_denied('roles');
         }
         if ($this->input->is_ajax_request()) {
@@ -20,12 +20,12 @@ class Roles extends AdminController
     /* Add new role or edit existing one */
     public function role($id = '')
     {
-        if (staff_cant('view', 'roles')) {
+        if (!has_permission('roles', '', 'view')) {
             access_denied('roles');
         }
         if ($this->input->post()) {
             if ($id == '') {
-                if (staff_cant('create', 'roles')) {
+                if (!has_permission('roles', '', 'create')) {
                     access_denied('roles');
                 }
                 $id = $this->roles_model->add($this->input->post());
@@ -34,7 +34,7 @@ class Roles extends AdminController
                     redirect(admin_url('roles/role/' . $id));
                 }
             } else {
-                if (staff_cant('edit', 'roles')) {
+                if (!has_permission('roles', '', 'edit')) {
                     access_denied('roles');
                 }
                 $success = $this->roles_model->update($this->input->post(), $id);
@@ -59,7 +59,7 @@ class Roles extends AdminController
     /* Delete role from database */
     public function delete($id)
     {
-        if (staff_cant('delete', 'roles')) {
+        if (!has_permission('roles', '', 'delete')) {
             access_denied('roles');
         }
         if (!$id) {

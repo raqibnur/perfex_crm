@@ -57,19 +57,19 @@ class Misc extends AdminController
     public function dismiss_cron_setup_message()
     {
         update_option('hide_cron_is_required_message', 1);
-        redirect(previous_url() ?: $_SERVER['HTTP_REFERER']);
+        redirect($_SERVER['HTTP_REFERER']);
     }
 
     public function dismiss_cloudflare_notice()
     {
         update_option('show_cloudflare_notice', 0);
-        redirect(previous_url() ?: $_SERVER['HTTP_REFERER']);
+        redirect($_SERVER['HTTP_REFERER']);
     }
 
     public function dismiss_php_version_notice()
     {
         update_option('show_php_version_notice', 0);
-        redirect(previous_url() ?: $_SERVER['HTTP_REFERER']);
+        redirect($_SERVER['HTTP_REFERER']);
     }
 
     public function clear_system_popup()
@@ -170,7 +170,7 @@ class Misc extends AdminController
                 }
             }
         }
-        redirect(previous_url() ?: $_SERVER['HTTP_REFERER']);
+        redirect($_SERVER['HTTP_REFERER']);
     }
 
     public function update_ei_items_order($type)
@@ -320,17 +320,14 @@ class Misc extends AdminController
                 set_alert('success', _l('added_successfully', _l('note')));
             }
         }
-        redirect(previous_url() ?: $_SERVER['HTTP_REFERER']);
+        redirect($_SERVER['HTTP_REFERER']);
     }
 
     public function edit_note($id)
     {
         if ($this->input->post()) {
-            $data = $this->input->post();
-            $success = $this->misc_model->edit_note($data, $id);
-            
+            $success = $this->misc_model->edit_note($this->input->post(), $id);
             echo json_encode([
-                'description'=> process_text_content_for_display(nl2br($data['description'])),
                 'success' => $success,
                 'message' => _l('note_updated_successfully'),
             ]);
@@ -345,7 +342,7 @@ class Misc extends AdminController
             if ($success) {
                 set_alert('success', _l('deleted', _l('note')));
             }
-            redirect(previous_url() ?: $_SERVER['HTTP_REFERER']);
+            redirect($_SERVER['HTTP_REFERER']);
         } else {
             echo json_encode(['success' => $success]);
         }
@@ -375,7 +372,7 @@ class Misc extends AdminController
     public function dismiss_announcement($id)
     {
         $this->misc_model->dismiss_announcement($id);
-        redirect(previous_url() ?: $_SERVER['HTTP_REFERER']);
+        redirect($_SERVER['HTTP_REFERER']);
     }
 
     /* Set notifications to read */

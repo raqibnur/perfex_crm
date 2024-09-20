@@ -373,13 +373,9 @@ class elFinderVolumeLocalFileSystem extends elFinderVolumeDriver
         // realpath() returns FALSE if the file does not exist
         if ($path === false || strpos($path, $this->root) !== 0) {
             if (DIRECTORY_SEPARATOR !== '/') {
-                $dir = str_replace('/', DIRECTORY_SEPARATOR, $dir);
                 $name = str_replace('/', DIRECTORY_SEPARATOR, $name);
             }
             // Directory traversal measures
-            if (strpos($dir, '..' . DIRECTORY_SEPARATOR) !== false || substr($dir, -2) == '..') {
-                $dir = $this->root;
-            }
             if (strpos($name, '..' . DIRECTORY_SEPARATOR) !== false) {
                 $name = basename($name);
             }
@@ -972,7 +968,7 @@ class elFinderVolumeLocalFileSystem extends elFinderVolumeDriver
      **/
     protected function _symlink($source, $targetDir, $name)
     {
-        return $this->localFileSystemSymlink($source, $this->_joinPath($targetDir, $name));
+        return symlink($source, $this->_joinPath($targetDir, $name));
     }
 
     /**
@@ -1470,14 +1466,12 @@ class elFinderVolumeLocalFileSystem extends elFinderVolumeDriver
     protected function localFileSystemSymlink($target, $link)
     {
         $res = false;
-        if (function_exists('symlink') and is_callable('symlink')) {
-            $errlev = error_reporting();
-            error_reporting($errlev ^ E_WARNING);
-            if ($res = symlink(realpath($target), $link)) {
-                $res = is_readable($link);
-            }
-            error_reporting($errlev);
+        $errlev = error_reporting();
+        error_reporting($errlev ^ E_WARNING);
+        if ($res = symlink(realpath($target), $link)) {
+            $res = is_readable($link);
         }
+        error_reporting($errlev);
         return $res;
     }
 } // END class 

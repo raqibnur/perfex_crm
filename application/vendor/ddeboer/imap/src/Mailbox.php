@@ -10,7 +10,6 @@ use Ddeboer\Imap\Exception\ImapStatusException;
 use Ddeboer\Imap\Exception\InvalidSearchCriteriaException;
 use Ddeboer\Imap\Exception\MessageCopyException;
 use Ddeboer\Imap\Exception\MessageMoveException;
-use Ddeboer\Imap\Exception\RenameMailboxException;
 use Ddeboer\Imap\Search\ConditionInterface;
 use Ddeboer\Imap\Search\LogicalOperator\All;
 
@@ -42,23 +41,6 @@ final class Mailbox implements MailboxInterface
         return $this->name;
     }
 
-    public function renameTo(string $name): bool
-    {
-        $encodedName = \mb_convert_encoding($name, 'UTF7-IMAP', 'UTF-8');
-        $oldFullName = $this->getFullEncodedName();
-        $newFullName = \preg_replace('/' . \preg_quote(\mb_convert_encoding($this->name, 'UTF7-IMAP', 'UTF-8')) . '$/', $encodedName, $oldFullName);
-        \assert(null !== $newFullName);
-
-        $return = \imap_renamemailbox($this->resource->getStream(), $oldFullName, $newFullName);
-        if (false === $return) {
-            throw new RenameMailboxException('Could not rename mailbox');
-        }
-        $this->name       = $name;
-        $this->info->name = $newFullName;
-
-        return true;
-    }
-
     public function getEncodedName(): string
     {
         /** @var string $name */
@@ -82,7 +64,6 @@ final class Mailbox implements MailboxInterface
         return $this->info->delimiter;
     }
 
-    #[\ReturnTypeWillChange]
     public function count()
     {
         $return = \imap_num_msg($this->resource->getStream());

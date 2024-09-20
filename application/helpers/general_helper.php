@@ -575,8 +575,8 @@ function _l($line, $label = '', $log_errors = true)
 
 /**
  * Format date to selected dateformat
- * @param  string $date Valid date
- * @return string
+ * @param  date $date Valid date
+ * @return date/string
  */
 function _d($date)
 {
@@ -773,8 +773,6 @@ function current_full_url()
  */
 function pusher_trigger_notification($users = [])
 {
-    hooks()->do_action('before_pusher_trigger_notification', $users);
-
     if (get_option('pusher_realtime_notifications') == 0) {
         return false;
     }
@@ -794,11 +792,7 @@ function pusher_trigger_notification($users = [])
 
     $CI->load->library('app_pusher');
 
-    try {
-        $CI->app_pusher->trigger($channels, 'notification', []);
-    } catch(\Exception $e) {
-        update_option('pusher_realtime_notifications', '0');
-    }
+    $CI->app_pusher->trigger($channels, 'notification', []);
 }
 
 
@@ -991,17 +985,5 @@ if (!function_exists('collect')) {
     function collect($items)
     {
         return new Illuminate\Support\Collection($items);
-    }
-}
-
-if (!function_exists('previous_url')) {
-    /**
-     * Get the previous URL.
-     * @since  3.1.3
-     * @return string|null
-     */
-    function previous_url() 
-    {
-        return get_instance()->session->userdata('_prev_url');
     }
 }

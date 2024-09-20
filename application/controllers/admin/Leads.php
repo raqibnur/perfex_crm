@@ -42,7 +42,6 @@ class Leads extends AdminController
         $data['statuses'] = $this->leads_model->get_status();
         $data['sources']  = $this->leads_model->get_source();
         $data['title']    = _l('leads');
-        $data['table'] = App_table::find('leads');
         // in case accesed the url leads/index/ directly with id - used in search
         $data['leadid']   = $id;
         $data['isKanBan'] = $this->session->has_userdata('leads_kanban_view') &&
@@ -56,8 +55,7 @@ class Leads extends AdminController
         if (!is_staff_member()) {
             ajax_access_denied();
         }
-
-        App_table::find('leads')->output();
+        $this->app->get_table_data('leads');
     }
 
     public function kanban()
@@ -132,7 +130,7 @@ class Leads extends AdminController
         $data['base_currency'] = get_base_currency();
 
         if (is_numeric($id)) {
-            $leadWhere = (staff_can('view',  'leads') ? [] : '(assigned = ' . get_staff_user_id() . ' OR addedfrom=' . get_staff_user_id() . ' OR is_public=1)');
+            $leadWhere = (has_permission('leads', '', 'view') ? [] : '(assigned = ' . get_staff_user_id() . ' OR addedfrom=' . get_staff_user_id() . ' OR is_public=1)');
 
             $lead = $this->leads_model->get($id, $leadWhere);
 
@@ -222,7 +220,7 @@ class Leads extends AdminController
         $this->session->set_userdata([
             'leads_kanban_view' => $set,
         ]);
-        redirect(previous_url() ?: $_SERVER['HTTP_REFERER']);
+        redirect($_SERVER['HTTP_REFERER']);
     }
 
     public function export($id)
@@ -240,7 +238,7 @@ class Leads extends AdminController
             redirect(admin_url('leads'));
         }
 
-        if (staff_cant('delete', 'leads')) {
+        if (!has_permission('leads', '', 'delete')) {
             access_denied('Delete Lead');
         }
 
@@ -446,7 +444,7 @@ class Leads extends AdminController
                         $this->gdpr_model->add_consent($consent);
                     }
                 }
-                if (staff_cant('view', 'customers') && get_option('auto_assign_customer_admin_after_lead_convert') == 1) {
+                if (!has_permission('customers', '', 'view') && get_option('auto_assign_customer_admin_after_lead_convert') == 1) {
                     $this->db->insert(db_prefix() . 'customer_admins', [
                         'date_assigned' => date('Y-m-d H:i:s'),
                         'customer_id'   => $id,
@@ -1277,7 +1275,7 @@ class Leads extends AdminController
             $tags                  = $this->input->post('tags');
             $last_contact          = $this->input->post('last_contact');
             $lost                  = $this->input->post('lost');
-            $has_permission_delete = staff_can('delete',  'leads');
+            $has_permission_delete = has_permission('leads', '', 'delete');
             if (is_array($ids)) {
                 foreach ($ids as $id) {
                     if ($this->input->post('mass_delete')) {
@@ -1345,7 +1343,7 @@ class Leads extends AdminController
         $files = $this->leads_model->get_lead_attachments($lead_id);
 
         if (count($files) == 0) {
-            redirect(previous_url() ?: $_SERVER['HTTP_REFERER']);
+            redirect($_SERVER['HTTP_REFERER']);
         }
 
         $path = get_upload_path_by_type('lead') . $lead_id;

@@ -20,9 +20,9 @@
             </a>
         </div>
         <?php } ?>
-        <?php if (isset($client) && (staff_cant('view', 'customers') && is_customer_admin($client->userid))) {?>
+        <?php if (isset($client) && (!has_permission('customers', '', 'view') && is_customer_admin($client->userid))) {?>
         <div class="alert alert-info">
-            <?php echo e(_l('customer_admin_login_as_client_message', get_staff_full_name(get_staff_user_id()))); ?>
+            <?php echo _l('customer_admin_login_as_client_message', get_staff_full_name(get_staff_user_id())); ?>
         </div>
         <?php } ?>
         <div class="row">
@@ -33,7 +33,7 @@
                         <span class="tw-truncate">
                             #<?php echo $client->userid . ' ' . $title; ?>
                         </span>
-                        <?php if (staff_can('delete',  'customers') || is_admin()) { ?>
+                        <?php if (has_permission('customers', '', 'delete') || is_admin()) { ?>
                         <div class="btn-group">
                             <a href="#" class="dropdown-toggle btn-link" data-toggle="dropdown" aria-haspopup="true"
                                 aria-expanded="false">
@@ -49,7 +49,7 @@
                                     </a>
                                 </li>
                                 <?php } ?>
-                                <?php if (staff_can('delete',  'customers')) { ?>
+                                <?php if (has_permission('customers', '', 'delete')) { ?>
                                 <li>
                                     <a href="<?php echo admin_url('clients/delete/' . $client->userid); ?>"
                                         class="text-danger delete-text _delete"><i class="fa fa-remove"></i>
@@ -63,9 +63,9 @@
                     </div>
                     <?php if (isset($client) && $client->leadid != null) { ?>
                     <small class="tw-block">
-                        <b><?php echo e(_l('customer_from_lead', _l('lead'))); ?></b>
+                        <b><?php echo _l('customer_from_lead', _l('lead')); ?></b>
                         <a href="<?php echo admin_url('leads/index/' . $client->leadid); ?>"
-                            onclick="init_lead(<?php echo e($client->leadid); ?>); return false;">
+                            onclick="init_lead(<?php echo $client->leadid; ?>); return false;">
                             - <?php echo _l('view'); ?>
                         </a>
                     </small>
@@ -117,7 +117,7 @@
 <?php if (isset($client)) { ?>
 <script>
 $(function() {
-    init_rel_tasks_table(<?php echo e($client->userid); ?>, 'customer');
+    init_rel_tasks_table(<?php echo $client->userid; ?>, 'customer');
 });
 </script>
 <?php } ?>

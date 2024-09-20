@@ -38,7 +38,7 @@ function surveys_global_search_result_output($output, $data)
 function surveys_global_search_result_query($result, $q, $limit)
 {
     $CI = &get_instance();
-    if (staff_can('view',  'surveys')) {
+    if (has_permission('surveys', '', 'view')) {
         // Surveys
         $CI->db->select()
         ->from(db_prefix() . 'surveys')
@@ -166,7 +166,7 @@ function surveys_module_init_menu_items()
         'icon'       => 'fa-regular fa-circle-question',
     ]);
 
-    if (staff_can('view',  'surveys')) {
+    if (has_permission('surveys', '', 'view')) {
         $CI->app_menu->add_sidebar_children_item('utilities', [
             'slug'     => 'surveys',
             'name'     => _l('surveys'),

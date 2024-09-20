@@ -18,23 +18,19 @@ if (is_numeric($id)) {
         'WHERE listid =' . $id,
         ], [
         'emailid',
-    ]);
+        ]);
     $output  = $result['output'];
     $rResult = $result['rResult'];
     foreach ($rResult as $aRow) {
         $row = [];
         for ($i = 0; $i < count($aColumns); $i++) {
             $_data = $aRow[$aColumns[$i]];
-
             if ($aColumns[$i] == 'dateadded') {
-                $_data = e(_dt($_data));
-            } else {
-                $_data = e($_data);
+                $_data = _dt($_data);
             }
-
             $row[] = $_data;
         }
-        if (staff_can('delete',  'surveys')) {
+        if (has_permission('surveys', '', 'delete')) {
             $row[] = '<a href="' . admin_url('surveys/delete_mail_list/' . $aRow['emailid']) . '"
             onclick="remove_email_from_mail_list(this,' . $aRow['emailid'] . '); return false;"
             class="tw-mt-px tw-text-neutral-500 hover:tw-text-neutral-700 focus:tw-text-neutral-700 _delete">
@@ -129,9 +125,7 @@ if (is_numeric($id)) {
         for ($i = 0; $i < count($aColumns); $i++) {
             $_data = $aRow[$aColumns[$i]];
             if ($aColumns[$i] == 'datecreated' || $aColumns[$i] == 'dateadded') {
-                $_data = e(_dt($_data));
-            } else {
-                $_data = e($_data);
+                $_data = _dt($_data);
             }
             // No delete option
             $row[] = $_data;

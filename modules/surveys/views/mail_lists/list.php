@@ -6,11 +6,11 @@
             <div class="col-md-6 col-md-offset-3">
                 <div class="tw-flex tw-justify-between tw-mb-2 sm:tw-mb-4">
                     <h4 class="tw-my-0 tw-font-semibold tw-text-lg tw-text-neutral-700">
-                        <?php echo e($title); ?>
+                        <?php echo $title; ?>
                     </h4>
                     <?php if (isset($list)) { ?>
                     <div>
-                        <?php if (staff_can('create',  'surveys')) { ?>
+                        <?php if (has_permission('surveys', '', 'create')) { ?>
                         <a href="<?php echo admin_url('surveys/mail_list'); ?>"
                             class="btn btn-success btn-sm pull-left display-block">
                             <i class="fa-regular fa-plus tw-mr-1"></i>
@@ -43,11 +43,11 @@
                                     foreach ($custom_fields as $field) { ?>
                             <div class="input-group list_custom_field mbot15">
                                 <input type="text"
-                                    name="list_custom_fields_update[<?php echo e($field['customfieldid']); ?>]"
-                                    value="<?php echo e($field['fieldname']); ?>" class="form-control">
+                                    name="list_custom_fields_update[<?php echo $field['customfieldid']; ?>]"
+                                    value="<?php echo $field['fieldname']; ?>" class="form-control">
                                 <span class="input-group-addon">
                                     <a href="#"
-                                        onclick="remove_list_custom_field(this,<?php echo e($field['customfieldid']); ?>)"><i
+                                        onclick="remove_list_custom_field(this,<?php echo $field['customfieldid']; ?>)"><i
                                             class="fa fa-remove"></i></a>
                                 </span>
                             </div>

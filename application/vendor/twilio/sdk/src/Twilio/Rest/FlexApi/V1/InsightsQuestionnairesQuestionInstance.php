@@ -25,8 +25,6 @@ use Twilio\Version;
  * @property array $category
  * @property string $answerSetId
  * @property bool $allowNa
- * @property int $usage
- * @property array $answerSet
  * @property string $url
  */
 class InsightsQuestionnairesQuestionInstance extends InstanceResource {
@@ -49,8 +47,6 @@ class InsightsQuestionnairesQuestionInstance extends InstanceResource {
             'category' => Values::array_get($payload, 'category'),
             'answerSetId' => Values::array_get($payload, 'answer_set_id'),
             'allowNa' => Values::array_get($payload, 'allow_na'),
-            'usage' => Values::array_get($payload, 'usage'),
-            'answerSet' => Values::array_get($payload, 'answer_set'),
             'url' => Values::array_get($payload, 'url'),
         ];
 
@@ -78,14 +74,17 @@ class InsightsQuestionnairesQuestionInstance extends InstanceResource {
     /**
      * Update the InsightsQuestionnairesQuestionInstance
      *
+     * @param string $question The question.
+     * @param string $description The question description.
+     * @param string $answerSetId The answer_set for question.
      * @param bool $allowNa Flag to enable NA for answer.
      * @param array|Options $options Optional Arguments
      * @return InsightsQuestionnairesQuestionInstance Updated
      *                                                InsightsQuestionnairesQuestionInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    public function update(bool $allowNa, array $options = []): InsightsQuestionnairesQuestionInstance {
-        return $this->proxy()->update($allowNa, $options);
+    public function update(string $question, string $description, string $answerSetId, bool $allowNa, array $options = []): InsightsQuestionnairesQuestionInstance {
+        return $this->proxy()->update($question, $description, $answerSetId, $allowNa, $options);
     }
 
     /**

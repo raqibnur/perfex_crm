@@ -19,12 +19,10 @@ foreach ($rResult as $aRow) {
     for ($i = 0; $i < count($aColumns); $i++) {
         $_data = $aRow[$aColumns[$i]];
         if ($aColumns[$i] == 'name') {
-            $_data = '<a href="' . admin_url('surveys/mail_list_view/' . $aRow['listid']) . '">' . e($_data) . '</a>';
+            $_data = '<a href="' . admin_url('surveys/mail_list_view/' . $aRow['listid']) . '">' . $_data . '</a>';
             $_data .= '<p>Total emails: ' . total_rows(db_prefix() . 'listemails', 'listid=' . $aRow['listid']) . '</p>';
         } elseif ($aColumns[$i] == db_prefix() . 'emaillists.datecreated') {
             $_data = _dt($_data);
-        } else {
-            $_data = e($_data);
         }
         $row[] = $_data;
     }
@@ -33,13 +31,13 @@ foreach ($rResult as $aRow) {
         <i class="fa fa-eye fa-lg"></i>
     </a>';
 
-    if (staff_can('edit',  'surveys')) {
+    if (has_permission('surveys', '', 'edit')) {
         $options .= '<a href="' . admin_url('surveys/mail_list/' . $aRow['listid']) . '" class="tw-text-neutral-500 hover:tw-text-neutral-700 focus:tw-text-neutral-700">
             <i class="fa-regular fa-pen-to-square fa-lg"></i>
         </a>';
     }
 
-    if (staff_can('delete',  'surveys')) {
+    if (has_permission('surveys', '', 'delete')) {
         $options .= '<a href="' . admin_url('surveys/delete_mail_list/' . $aRow['listid']) . '" class="tw-text-neutral-500 hover:tw-text-neutral-700 focus:tw-text-neutral-700 _delete">
             <i class="fa-regular fa-trash-can fa-lg"></i>
         </a>';

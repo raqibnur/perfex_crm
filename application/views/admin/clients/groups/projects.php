@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed'); ?>
 <h4 class="customer-profile-group-heading"><?php echo _l('projects'); ?></h4>
 <?php if (isset($client)) { ?>
-<?php if (staff_can('create',  'projects')) { ?>
+<?php if (has_permission('projects', '', 'create')) { ?>
 <a href="<?php echo admin_url('projects/project?customer_id=' . $client->userid); ?>"
     class="btn btn-primary mbot15<?php echo $client->active == 0 ? ' disabled' : ''; ?>">
     <i class="fa-regular fa-plus tw-mr-1"></i>
@@ -10,7 +10,7 @@
 <?php } ?>
 <?php
       $_where = '';
-      if (staff_cant('view', 'projects')) {
+      if (!has_permission('projects', '', 'view')) {
           $_where = 'id IN (SELECT project_id FROM ' . db_prefix() . 'project_members WHERE staff_id=' . get_staff_user_id() . ')';
       }
       ?>
@@ -18,8 +18,8 @@
     <?php foreach ($project_statuses as $status) { ?>
     <div class="tw-border tw-border-solid tw-border-neutral-200 tw-rounded-md tw-bg-white">
         <div class="tw-px-4 tw-py-5 sm:tw-px-4 sm:tw-py-2">
-            <dt class="tw-text-base tw-font-normal" style="color:<?php echo e($status['color']); ?>">
-                <?php echo e($status['name']); ?>
+            <dt class="tw-text-base tw-font-normal" style="color:<?php echo $status['color']; ?>">
+                <?php echo $status['name']; ?>
             </dt>
             <dd class="tw-mt-1 tw-flex tw-items-baseline tw-justify-between md:tw-block lg:tw-flex">
                 <div class="tw-flex tw-items-baseline tw-text-lg tw-font-semibold tw-text-primary-600">

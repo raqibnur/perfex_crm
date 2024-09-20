@@ -262,7 +262,6 @@ function render_textarea($name, $label = '', $value = '', $textarea_attrs = [], 
     if (strpos($textarea_class, 'tinymce') !== false) {
         $v = html_purify($value);
     }
-    
     $textarea .= '<textarea id="' . $name . '" name="' . $name . '" class="form-control' . $textarea_class . '" ' . $_textarea_attrs . '>' . set_value($name, $v) . '</textarea>';
 
     $textarea .= '</div>';
@@ -471,7 +470,7 @@ if (!function_exists('render_form_builder_field')) {
             $label = ($field->label ?? '') ?: '';
 
             if ($label && !empty(trim($label)) && $label != 'undefined') {
-                echo '<label class="control-label" style="display:block;" for="' . $field->name . '">' . (isset($field->required) ? ' <span class="text-danger">* </span> ': '') . $label . '' . (isset($field->description) ? ' <i class="fa-regular fa-circle-question" data-toggle="tooltip" data-title="' . $field->description . '" data-placement="top"></i>' : '') . '</label>';
+                echo '<label class="control-label" style="display:block;" for="' . $field->name . '">' . (isset($field->required) ? ' <span class="text-danger">* </span> ': '') . $label . '' . (isset($field->description) ? ' <i class="fa-regular fa-circle-question" data-toggle="tooltip" data-title="' . $field->description . '" data-placement="' . (is_rtl(true) ? 'left' : 'right') . '"></i>' : '') . '</label>';
             }
 
             if (isset($field->subtype) && $field->subtype == 'color') {

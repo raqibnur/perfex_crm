@@ -1,6 +1,5 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed'); ?>
 <?php init_head(); ?>
-<?php $isSignedOrMarkedSigned = isset($contract) && ($contract->signed == 1 || $contract->marked_as_signed == 1); ?>
 <div id="wrapper">
     <div class="content">
         <div class="row">
@@ -46,7 +45,7 @@
                             <select id="clientid" name="client" data-live-search="true" data-width="100%"
                                 class="ajax-search"
                                 data-none-selected-text="<?php echo _l('dropdown_non_selected_tex'); ?>"
-                                <?php echo isset($contract) && $isSignedOrMarkedSigned ? ' disabled' : ''; ?>>
+                                <?php echo isset($contract) && $contract->signed == 1 ? ' disabled' : ''; ?>>
                                 <?php $selected = (isset($contract) ? $contract->client : '');
                         if ($selected == '') {
                             $selected = (isset($customer_id) ? $customer_id: '');
@@ -54,7 +53,7 @@
                        if ($selected != '') {
                            $rel_data = get_relation_data('customer', $selected);
                            $rel_val  = get_relation_values($rel_data, 'customer');
-                           echo '<option value="' . $rel_val['id'] . '" selected>' . e($rel_val['name']) . '</option>';
+                           echo '<option value="' . $rel_val['id'] . '" selected>' . $rel_val['name'] . '</option>';
                        } ?>
                             </select>
                         </div>
@@ -66,10 +65,10 @@
                                 <select name="project_id" id="project_id" class="projects ajax-search ays-ignore"
                                     data-live-search="true" data-width="100%"
                                     data-none-selected-text="<?php echo _l('dropdown_non_selected_tex'); ?>"
-                                    <?php echo isset($contract) && $isSignedOrMarkedSigned == 1 ? ' disabled' : ''; ?>>
+                                    <?php echo isset($contract) && $contract->signed == 1 ? ' disabled' : ''; ?>>
                                     <?php
                       if (isset($contract) && $contract->project_id) {
-                          echo '<option value="' . $contract->project_id . '" selected>' . e(get_project_name_by_id($contract->project_id)) . '</option>';
+                          echo '<option value="' . $contract->project_id . '" selected>' . get_project_name_by_id($contract->project_id) . '</option>';
                       }
                      ?>
                                 </select>
@@ -83,12 +82,12 @@
                         <div class="form-group">
                             <label for="contract_value"><?php echo _l('contract_value'); ?></label>
                             <div class="input-group" data-toggle="tooltip"
-                                title="<?php echo isset($contract) && $isSignedOrMarkedSigned == 1 ? '' : _l('contract_value_tooltip'); ?>">
+                                title="<?php echo isset($contract) && $contract->signed == 1 ? '' : _l('contract_value_tooltip'); ?>">
                                 <input type="number" class="form-control" name="contract_value"
                                     value="<?php echo $contract->contract_value ?? ''; ?>"
-                                    <?php echo isset($contract) && $isSignedOrMarkedSigned == 1 ? ' disabled' : ''; ?>>
+                                    <?php echo isset($contract) && $contract->signed == 1 ? ' disabled' : ''; ?>>
                                 <div class="input-group-addon">
-                                    <?php echo e($base_currency->symbol); ?>
+                                    <?php echo $base_currency->symbol; ?>
                                 </div>
                             </div>
                         </div>
@@ -107,7 +106,7 @@
              'datestart',
              'contract_start_date',
              $value,
-             isset($contract) && $isSignedOrMarkedSigned ? ['disabled' => true] : []
+             isset($contract) && $contract->signed == 1 ? ['disabled' => true] : []
          ); ?>
                             </div>
                             <div class="col-md-6">
@@ -116,7 +115,7 @@
              'dateend',
              'contract_end_date',
              $value,
-             isset($contract) && $isSignedOrMarkedSigned ? ['disabled' => true] : []
+             isset($contract) && $contract->signed == 1 ? ['disabled' => true] : []
          ); ?>
                             </div>
                         </div>
@@ -138,16 +137,16 @@
             <?php if (isset($contract)) { ?>
             <div class="col-md-7 right-column">
                 <div class="sm:tw-flex sm:tw-justify-between sm:tw-items-center tw-mb-1 -tw-mt-px">
-                    <h4 class="tw-my-0 tw-font-semibold tw-text-lg tw-text-neutral-700 tw-truncate tw-max-w-lg">
-                        <?php echo e($contract->subject); ?>
+                    <h4 class="tw-my-0 tw-font-semibold tw-text-lg tw-text-neutral-700">
+                        <?php echo $contract->subject; ?>
                     </h4>
                     <div>
-                        <div class="_buttons tw-space-x-1 tw-flex tw-items-center">
+                        <div class="_buttons tw-space-x-1">
                             <a href="<?php echo site_url('contract/' . $contract->id . '/' . $contract->hash); ?>"
                                 target="_blank">
                                 <?php echo _l('view_contract'); ?>
                             </a>
-                            <div class="btn-group !tw-ml-3">
+                            <div class="btn-group">
                                 <a href="#" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
                                     aria-haspopup="true" aria-expanded="false"><i
                                         class="fa-regular fa-file-pdf"></i><?php echo is_mobile() ? 'PDF' : ''; ?> <span
@@ -191,7 +190,8 @@
                                             <?php echo _l('view_contract'); ?>
                                         </a>
                                     </li>
-                                    <?php if (!$isSignedOrMarkedSigned && staff_can('edit', 'contracts')) { ?>
+                                    <?php
+                              if ($contract->signed == 0 && $contract->marked_as_signed == 0 && staff_can('edit', 'contracts')) { ?>
                                     <li>
                                         <a href="<?php echo admin_url('contracts/mark_as_signed/' . $contract->id); ?>">
                                             <?php echo _l('mark_as_signed'); ?>
@@ -206,14 +206,14 @@
                                     </li>
                                     <?php } ?>
                                     <?php hooks()->do_action('after_contract_view_as_client_link', $contract); ?>
-                                    <?php if (staff_can('create',  'contracts')) { ?>
+                                    <?php if (has_permission('contracts', '', 'create')) { ?>
                                     <li>
                                         <a href="<?php echo admin_url('contracts/copy/' . $contract->id); ?>">
                                             <?php echo _l('contract_copy'); ?>
                                         </a>
                                     </li>
                                     <?php } ?>
-                                    <?php if ($contract->signed == 1 && staff_can('delete',  'contracts')) { ?>
+                                    <?php if ($contract->signed == 1 && has_permission('contracts', '', 'delete')) { ?>
                                     <li>
                                         <a href="<?php echo admin_url('contracts/clear_signature/' . $contract->id); ?>"
                                             class="_delete">
@@ -221,7 +221,7 @@
                                         </a>
                                     </li>
                                     <?php } ?>
-                                    <?php if (staff_can('delete',  'contracts')) { ?>
+                                    <?php if (has_permission('contracts', '', 'delete')) { ?>
                                     <li>
                                         <a href="<?php echo admin_url('contracts/delete/' . $contract->id); ?>"
                                             class="_delete">
@@ -257,7 +257,7 @@
                                             <?php echo _l('contract_attachments'); ?>
                                             <?php if ($totalAttachments = count($contract->attachments)) { ?>
                                             <span
-                                                class="badge attachments-indicator"><?php echo e($totalAttachments); ?></span>
+                                                class="badge attachments-indicator"><?php echo $totalAttachments; ?></span>
                                             <?php } ?>
                                         </a>
                                     </li>
@@ -269,7 +269,7 @@
                         $totalComments = total_rows(db_prefix() . 'contract_comments', 'contract_id=' . $contract->id)
                         ?>
                                             <span
-                                                class="badge comments-indicator<?php echo $totalComments == 0 ? ' hide' : ''; ?>"><?php echo e($totalComments); ?></span>
+                                                class="badge comments-indicator<?php echo $totalComments == 0 ? ' hide' : ''; ?>"><?php echo $totalComments; ?></span>
                                         </a>
                                     </li>
                                     <li role="presentation" class="<?php if ($this->input->get('tab') == 'renewals') {
@@ -278,24 +278,24 @@
                                         <a href="#renewals" aria-controls="renewals" role="tab" data-toggle="tab">
                                             <?php echo _l('no_contract_renewals_history_heading'); ?>
                                             <?php if ($totalRenewals = count($contract_renewal_history)) { ?>
-                                            <span class="badge"><?php echo e($totalRenewals); ?></span>
+                                            <span class="badge"><?php echo $totalRenewals; ?></span>
                                             <?php } ?>
                                         </a>
                                     </li>
                                     <li role="presentation" class="tab-separator">
                                         <a href="#tab_tasks" aria-controls="tab_tasks" role="tab" data-toggle="tab"
-                                            onclick="init_rel_tasks_table(<?php echo e($contract->id); ?>,'contract'); return false;">
+                                            onclick="init_rel_tasks_table(<?php echo $contract->id; ?>,'contract'); return false;">
                                             <?php echo _l('tasks'); ?>
                                         </a>
                                     </li>
                                     <li role="presentation" class="tab-separator">
                                         <a href="#tab_notes"
-                                            onclick="get_sales_notes(<?php echo e($contract->id); ?>,'contracts'); return false"
+                                            onclick="get_sales_notes(<?php echo $contract->id; ?>,'contracts'); return false"
                                             aria-controls="tab_notes" role="tab" data-toggle="tab">
                                             <?php echo _l('contract_notes'); ?>
                                             <span class="notes-total">
                                                 <?php if ($totalNotes > 0) { ?>
-                                                <span class="badge"><?php echo e($totalNotes); ?></span>
+                                                <span class="badge"><?php echo $totalNotes; ?></span>
                                                 <?php } ?>
                                             </span>
                                         </a>
@@ -306,7 +306,7 @@
                                             aria-controls="tab_templates" role="tab" data-toggle="tab">
                                             <?php echo _l('templates');
                                             $conditions = ['type' => 'contracts'];
-                                            if (staff_cant('view_all_templates', 'contracts')) {
+                                            if (!staff_can('view_all_templates', 'contracts')) {
                                                 $conditions['addedfrom'] = get_staff_user_id();
                                                 $conditions['type']      = 'contracts';
                                             }
@@ -346,9 +346,9 @@
                                             <?php echo _l(
                                                     'document_signed_info',
                                                     [
-                                 '<b>' . e($contract->acceptance_firstname) . ' ' . e($contract->acceptance_lastname) . '</b> (<a href="mailto:' . e($contract->acceptance_email) . '">' . e($contract->acceptance_email) . '</a>)',
-                                 '<b>' . e(_dt($contract->acceptance_date)) . '</b>',
-                                 '<b>' . e($contract->acceptance_ip) . '</b>', ]
+                                 '<b>' . $contract->acceptance_firstname . ' ' . $contract->acceptance_lastname . '</b> (<a href="mailto:' . $contract->acceptance_email . '">' . $contract->acceptance_email . '</a>)',
+                                 '<b>' . _dt($contract->acceptance_date) . '</b>',
+                                 '<b>' . $contract->acceptance_ip . '</b>', ]
                                                 ); ?>
                                         </div>
                                     </div>
@@ -380,39 +380,39 @@
                                     </div>
                                 </div>
                                 <hr class="hr-panel-separator" />
-                                <?php if (staff_cant('edit', 'contracts')) { ?>
+                                <?php if (!staff_can('edit', 'contracts')) { ?>
                                 <div class="alert alert-warning contract-edit-permissions">
                                     <?php echo _l('contract_content_permission_edit_warning'); ?>
                                 </div>
                                 <?php } ?>
-                                <div class="tc-content<?php
-                                if (staff_can('edit', 'contracts') && !$isSignedOrMarkedSigned) {
+                                <div class="tc-content<?php if (staff_can('edit', 'contracts') &&
+                  !($contract->signed == 1)) {
                                    echo ' editable';
                                } ?>" style="border:1px solid #d2d2d2;min-height:70px; border-radius:4px;">
                                     <?php
-                                        if (empty($contract->content) && staff_can('edit', 'contracts')) {
-                                            echo hooks()->apply_filters('new_contract_default_content', '<span class="text-danger text-uppercase mtop15 editor-add-content-notice"> ' . _l('click_to_add_content') . '</span>');
-                                        } else {
-                                            echo $contract->content;
-                                        }
-                                    ?>
+                  if (empty($contract->content) && staff_can('edit', 'contracts')) {
+                      echo hooks()->apply_filters('new_contract_default_content', '<span class="text-danger text-uppercase mtop15 editor-add-content-notice"> ' . _l('click_to_add_content') . '</span>');
+                  } else {
+                      echo $contract->content;
+                  }
+                ?>
                                 </div>
                                 <?php if (!empty($contract->signature)) { ?>
                                 <div class="row mtop25">
                                     <div class="col-md-6 col-md-offset-6 text-right">
                                         <div class="bold">
                                             <p class="no-mbot">
-                                                <?php echo e(_l('contract_signed_by') . ": {$contract->acceptance_firstname} {$contract->acceptance_lastname}"); ?>
+                                                <?php echo _l('contract_signed_by') . ": {$contract->acceptance_firstname} {$contract->acceptance_lastname}"?>
                                             </p>
                                             <p class="no-mbot">
-                                                <?php echo e(_l('contract_signed_date') . ': ' . _dt($contract->acceptance_date)); ?>
+                                                <?php echo _l('contract_signed_date') . ': ' . _dt($contract->acceptance_date) ?>
                                             </p>
                                             <p class="no-mbot">
-                                                <?php echo e(_l('contract_signed_ip') . ": {$contract->acceptance_ip}"); ?>
+                                                <?php echo _l('contract_signed_ip') . ": {$contract->acceptance_ip}"?>
                                             </p>
                                         </div>
                                         <p class="bold"><?php echo _l('document_customer_signature_text'); ?>
-                                            <?php if ($contract->signed == 1 && staff_can('delete',  'contracts')) { ?>
+                                            <?php if ($contract->signed == 1 && has_permission('contracts', '', 'delete')) { ?>
                                             <a href="<?php echo admin_url('contracts/clear_signature/' . $contract->id); ?>"
                                                 data-toggle="tooltip" title="<?php echo _l('clear_signature'); ?>"
                                                 class="_delete text-danger">
@@ -496,7 +496,7 @@
              echo ' active';
          } ?>" id="renewals">
                                 <div class="mtop20">
-                                    <?php if (staff_can('edit',  'contracts')) { ?>
+                                    <?php if (has_permission('contracts', '', 'edit')) { ?>
                                     <div class="_buttons">
                                         <a href="#" class="btn btn-default" data-toggle="modal"
                                             data-target="#renew_contract_modal">
@@ -507,17 +507,17 @@
                                     <?php } ?>
                                     <div class="clearfix"></div>
                                     <?php
-                                    if (count($contract_renewal_history) == 0) {
-                                        echo '<p class="tw-m-0 tw-text-base tw-font-medium tw-text-neutral-500">' . _l('no_contract_renewals_found') . '</p>';
-                                    }
-                                    foreach ($contract_renewal_history as $renewal) { ?>
+      if (count($contract_renewal_history) == 0) {
+          echo '<p class="tw-m-0 tw-text-base tw-font-medium tw-text-neutral-500">' . _l('no_contract_renewals_found') . '</p>';
+      }
+    foreach ($contract_renewal_history as $renewal) { ?>
                                     <div class="display-block">
                                         <div class="media-body">
                                             <div class="display-block">
                                                 <b>
-                                                <?php
-                                                    echo e(_l('contract_renewed_by', $renewal['renewed_by']));
-                                                ?>
+                                                    <?php
+                  echo _l('contract_renewed_by', $renewal['renewed_by']);
+                  ?>
                                                 </b>
                                                 <?php if ($renewal['renewed_by_staff_id'] == get_staff_user_id() || is_admin()) { ?>
                                                 <a href="<?php echo admin_url('contracts/delete_renewal/' . $renewal['id'] . '/' . $renewal['contractid']); ?>"
@@ -526,35 +526,37 @@
                                                 <br />
                                                 <?php } ?>
                                                 <small
-                                                    class="text-muted"><?php echo e(_dt($renewal['date_renewed'])); ?></small>
+                                                    class="text-muted"><?php echo _dt($renewal['date_renewed']); ?></small>
                                                 <hr class="hr-10" />
                                                 <span class="text-success bold" data-toggle="tooltip"
-                                                    title="<?php echo e(_l('contract_renewal_old_start_date', _d($renewal['old_start_date']))); ?>">
-                                                    <?php echo e(_l('contract_renewal_new_start_date', _d($renewal['new_start_date']))); ?>
+                                                    title="<?php echo _l('contract_renewal_old_start_date', _d($renewal['old_start_date'])); ?>">
+                                                    <?php echo _l('contract_renewal_new_start_date', _d($renewal['new_start_date'])); ?>
                                                 </span>
                                                 <br />
                                                 <?php if (is_date($renewal['new_end_date'])) {
-                                                $tooltip = '';
-                                                if (is_date($renewal['old_end_date'])) {
-                                                    $tooltip = e(_l('contract_renewal_old_end_date', _d($renewal['old_end_date'])));
-                                                } ?>
+                      $tooltip = '';
+                      if (is_date($renewal['old_end_date'])) {
+                          $tooltip = _l('contract_renewal_old_end_date', _d($renewal['old_end_date']));
+                      } ?>
                                                 <span class="text-success bold" data-toggle="tooltip"
-                                                    title="<?php echo e($tooltip); ?>">
-                                                    <?php echo e(_l('contract_renewal_new_end_date', _d($renewal['new_end_date']))); ?>
+                                                    title="<?php echo $tooltip; ?>">
+                                                    <?php echo _l('contract_renewal_new_end_date', _d($renewal['new_end_date'])); ?>
                                                 </span>
                                                 <br />
-                                                <?php } ?>
+                                                <?php
+                  } ?>
                                                 <?php if ($renewal['new_value'] > 0) {
-                                                $contract_renewal_value_tooltip = '';
-                                                if ($renewal['old_value'] > 0) {
-                                                    $contract_renewal_value_tooltip = ' data-toggle="tooltip" data-title="' . e(_l('contract_renewal_old_value', app_format_money($renewal['old_value'], $base_currency))) . '"';
-                                                } ?>
+                      $contract_renewal_value_tooltip = '';
+                      if ($renewal['old_value'] > 0) {
+                          $contract_renewal_value_tooltip = ' data-toggle="tooltip" data-title="' . _l('contract_renewal_old_value', app_format_money($renewal['old_value'], $base_currency)) . '"';
+                      } ?>
                                                 <span class="text-success bold"
-                                                    <?php echo e($contract_renewal_value_tooltip); ?>>
-                                                    <?php echo e(_l('contract_renewal_new_value', app_format_money($renewal['new_value'], $base_currency))); ?>
+                                                    <?php echo $contract_renewal_value_tooltip; ?>>
+                                                    <?php echo _l('contract_renewal_new_value', app_format_money($renewal['new_value'], $base_currency)); ?>
                                                 </span>
                                                 <br />
-                                                <?php  } ?>
+                                                <?php
+                  } ?>
                                             </div>
                                         </div>
                                         <hr />
@@ -649,16 +651,98 @@ $(function() {
         new_start_date: 'required'
     });
 
-    init_tinymce_inline_editor({
-        saveUsing: save_contract_content,
-        onSetup: function(editor) {
+    var _templates = [];
+    $.each(contractsTemplates, function(i, template) {
+        _templates.push({
+            url: admin_url + 'contracts/get_template?name=' + template,
+            title: template
+        });
+    });
+
+    var editor_settings = {
+        selector: 'div.editable',
+        inline: true,
+        theme: 'inlite',
+        relative_urls: false,
+        remove_script_host: false,
+        inline_styles: true,
+        entity_encoding: "raw",
+        verify_html: false,
+        cleanup: false,
+        apply_source_formatting: false,
+        valid_elements: '+*[*]',
+        valid_children: "+body[style], +style[type]",
+        file_browser_callback: elFinderBrowser,
+        table_default_styles: {
+            width: '100%'
+        },
+        fontsize_formats: '8pt 10pt 12pt 14pt 18pt 24pt 36pt',
+        pagebreak_separator: '<p pagebreak="true"></p>',
+        plugins: [
+            'advlist pagebreak autolink autoresize lists link image charmap hr',
+            'searchreplace visualblocks visualchars code',
+            'media nonbreaking table contextmenu',
+            'paste textcolor colorpicker'
+        ],
+        autoresize_bottom_margin: 50,
+        insert_toolbar: 'image media quicktable | bullist numlist | h2 h3 | hr',
+        selection_toolbar: 'save_button bold italic underline superscript | forecolor backcolor link | alignleft aligncenter alignright alignjustify | fontselect fontsizeselect h2 h3',
+        contextmenu: "image media inserttable | cell row column deletetable | paste pastetext searchreplace | visualblocks pagebreak charmap | code",
+        setup: function(editor) {
+
+            editor.addCommand('mceSave', function() {
+                save_contract_content(true);
+            });
+
+            editor.addShortcut('Meta+S', '', 'mceSave');
+
+            editor.on('MouseLeave blur', function() {
+                if (tinymce.activeEditor.isDirty()) {
+                    save_contract_content();
+                }
+            });
+
             editor.on('MouseDown ContextMenu', function() {
                 if (!is_mobile() && !$('.left-column').hasClass('hide')) {
                     contract_full_view();
                 }
             });
+
+            editor.on('blur', function() {
+                $.Shortcuts.start();
+            });
+
+            editor.on('focus', function() {
+                $.Shortcuts.stop();
+            });
+
         }
-    })
+    }
+
+    if (_templates.length > 0) {
+        editor_settings.templates = _templates;
+        editor_settings.plugins[3] = 'template ' + editor_settings.plugins[3];
+        editor_settings.contextmenu = editor_settings.contextmenu.replace('inserttable',
+            'inserttable template');
+    }
+
+    if (is_mobile()) {
+
+        editor_settings.theme = 'modern';
+        editor_settings.mobile = {};
+        editor_settings.mobile.theme = 'mobile';
+        editor_settings.mobile.toolbar = _tinymce_mobile_toolbar();
+
+        editor_settings.inline = false;
+        window.addEventListener("beforeunload", function(event) {
+            if (tinymce.activeEditor.isDirty()) {
+                save_contract_content();
+            }
+        });
+    }
+
+    tinymce.init(editor_settings);
+
 });
 
 function save_contract_content(manual) {

@@ -50,11 +50,9 @@ final class Connection implements ConnectionInterface
 
     public function close(int $flag = 0): bool
     {
-        $stream = $this->resource->getStream();
-
         $this->resource->clearLastMailboxUsedCache();
 
-        return \imap_close($stream, $flag);
+        return \imap_close($this->resource->getStream(), $flag);
     }
 
     public function getQuota(string $root = 'INBOX'): array
@@ -63,7 +61,7 @@ final class Connection implements ConnectionInterface
         $errorNumber  = 0;
         \set_error_handler(static function ($nr, $message) use (&$errorMessage, &$errorNumber): bool {
             $errorMessage = $message;
-            $errorNumber  = $nr;
+            $errorNumber = $nr;
 
             return true;
         });
@@ -119,7 +117,6 @@ final class Connection implements ConnectionInterface
         return new Mailbox($this->resource, $name, $this->mailboxNames[$name]);
     }
 
-    #[\ReturnTypeWillChange]
     public function count()
     {
         $return = \imap_num_msg($this->resource->getStream());

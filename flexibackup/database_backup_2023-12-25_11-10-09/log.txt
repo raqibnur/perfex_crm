@@ -1,0 +1,3 @@
+Backup folder created at 2023-12-25 11:10:09
+Database backup started at 2023-12-25 11:10:09
+Database backup completed at 2023-12-25 11:10:09

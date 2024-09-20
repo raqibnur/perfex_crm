@@ -24,8 +24,7 @@ foreach ($rResult as $aRow) {
         if ($aColumns[$i] == 'date') {
             $_data = _dt($_data);
         }
-  
-        $row[] = e($_data);
+        $row[] = $_data;
     }
     $output['aaData'][] = $row;
 }

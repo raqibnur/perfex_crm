@@ -15,9 +15,9 @@ defined('BASEPATH') or exit('No direct script access allowed');
  */
 function data_tables_init($aColumns, $sIndexColumn, $sTable, $join = [], $where = [], $additionalSelect = [], $sGroupBy = '', $searchAs = [])
 {
-    $CI          = &get_instance();
-    $data      = $CI->input->post();
-
+    $CI          = & get_instance();
+    $__post      = $CI->input->post();
+    $havingCount = '';
     /*
      * Paging
      */
@@ -25,9 +25,7 @@ function data_tables_init($aColumns, $sIndexColumn, $sTable, $join = [], $where 
     if ((is_numeric($CI->input->post('start'))) && $CI->input->post('length') != '-1') {
         $sLimit = 'LIMIT ' . intval($CI->input->post('start')) . ', ' . intval($CI->input->post('length'));
     }
-
-    $allColumns = [];
-
+    $_aColumns = [];
     foreach ($aColumns as $column) {
         // if found only one dot
         if (substr_count($column, '.') == 1 && strpos($column, ' as ') === false) {
@@ -35,15 +33,15 @@ function data_tables_init($aColumns, $sIndexColumn, $sTable, $join = [], $where 
             if (isset($_column[1])) {
                 if (startsWith($_column[0], db_prefix())) {
                     $_prefix = prefixed_table_fields_wildcard($_column[0], $_column[0], $_column[1]);
-                    array_push($allColumns, $_prefix);
+                    array_push($_aColumns, $_prefix);
                 } else {
-                    array_push($allColumns, $column);
+                    array_push($_aColumns, $column);
                 }
             } else {
-                array_push($allColumns, $_column[0]);
+                array_push($_aColumns, $_column[0]);
             }
         } else {
-            array_push($allColumns, $column);
+            array_push($_aColumns, $column);
         }
     }
 
@@ -56,9 +54,9 @@ function data_tables_init($aColumns, $sIndexColumn, $sTable, $join = [], $where 
     if ($CI->input->post('order')) {
         $sOrder = 'ORDER BY ';
         foreach ($CI->input->post('order') as $key => $val) {
-            $columnName = $aColumns[intval($data['order'][$key]['column'])];
-            $dir        = strtoupper($data['order'][$key]['dir']);
-            $type       = $data['order'][$key]['type'] ?? null;
+            $columnName = $aColumns[intval($__post['order'][$key]['column'])];
+            $dir        = strtoupper($__post['order'][$key]['dir']);
+            $type       = $__post['order'][$key]['type'] ?? null;
 
             // Security
             if (!in_array($dir, ['ASC', 'DESC'])) {
@@ -74,7 +72,8 @@ function data_tables_init($aColumns, $sIndexColumn, $sTable, $join = [], $where 
             // this will work on the first table sorting - checked by the draw parameters
             // in future sorting user must sort like he want and the duedates won't be always last
             if ((in_array($sTable . '.' . $columnName, $nullColumnsAsLast)
-                || in_array($columnName, $nullColumnsAsLast))) {
+                || in_array($columnName, $nullColumnsAsLast))
+                ) {
                 $sOrder .= $columnName . ' IS NULL ' . $dir . ', ' . $columnName;
             } else {
                 // Custom fields sorting support for number type custom fields
@@ -98,11 +97,9 @@ function data_tables_init($aColumns, $sIndexColumn, $sTable, $join = [], $where 
 
         $sOrder = rtrim($sOrder, ', ');
 
-        if (
-            get_option('save_last_order_for_tables') == '1'
+        if (get_option('save_last_order_for_tables') == '1'
             && $CI->input->post('last_order_identifier')
-            && $CI->input->post('order')
-        ) {
+            && $CI->input->post('order')) {
             // https://stackoverflow.com/questions/11195692/json-encode-sparse-php-array-as-json-array-not-json-object
 
             $indexedOnly = [];
@@ -122,13 +119,12 @@ function data_tables_init($aColumns, $sIndexColumn, $sTable, $join = [], $where 
      * on very large tables, and MySQL's regex functionality is very limited
      */
     $sWhere = '';
-    if ((isset($data['search'])) && $data['search']['value'] != '') {
-        $search_value = $data['search']['value'];
+    if ((isset($__post['search'])) && $__post['search']['value'] != '') {
+        $search_value = $__post['search']['value'];
         $search_value = trim($search_value);
 
         $sWhere             = 'WHERE (';
         $sMatchCustomFields = [];
-
         // Not working, do not use it
         $useMatchForCustomFieldsTableSearch = hooks()->apply_filters('use_match_for_custom_fields_table_search', 'false');
 
@@ -138,12 +134,12 @@ function data_tables_init($aColumns, $sIndexColumn, $sTable, $join = [], $where 
                 $columnName = strbefore($columnName, ' as');
             }
 
-            if (stripos($columnName, 'AVG(') === false && stripos($columnName, 'SUM(') === false) {
-                if (($data['columns'][$i]) && $data['columns'][$i]['searchable'] == 'true') {
+            if (stripos($columnName, 'AVG(') !== false || stripos($columnName, 'SUM(') !== false) {
+            } else {
+                if (($__post['columns'][$i]) && $__post['columns'][$i]['searchable'] == 'true') {
                     if (isset($searchAs[$i])) {
                         $columnName = $searchAs[$i];
                     }
-
                     // Custom fields values are FULLTEXT and should be searched with MATCH
                     // Not working ATM
                     if ($useMatchForCustomFieldsTableSearch === 'true' && startsWith($columnName, 'ctable_')) {
@@ -167,47 +163,38 @@ function data_tables_init($aColumns, $sIndexColumn, $sTable, $join = [], $where 
                 if (strpos($searchAdditionalField, ' as ') !== false) {
                     $searchAdditionalField = strbefore($searchAdditionalField, ' as');
                 }
-
-                if (stripos($columnName, 'AVG(') === false && stripos($columnName, 'SUM(') === false) {
+                if (stripos($columnName, 'AVG(') !== false || stripos($columnName, 'SUM(') !== false) {
+                } else {
                     // Use index
                     $sWhere .= 'convert(' . $searchAdditionalField . ' USING utf8)' . " LIKE '%" . $CI->db->escape_like_str($search_value) . "%'ESCAPE '!' OR ";
                 }
             }
         }
-
         $sWhere = substr_replace($sWhere, '', -3);
         $sWhere .= ')';
     } else {
         // Check for custom filtering
         $searchFound = 0;
         $sWhere      = 'WHERE (';
+        for ($i = 0; $i < count($aColumns); $i++) {
+            if (($__post['columns'][$i]) && $__post['columns'][$i]['searchable'] == 'true') {
+                $search_value = $__post['columns'][$i]['search']['value'];
 
-        foreach ($aColumns as $i => $column) {
-            if (isset($data['columns'][$i]) && $data['columns'][$i]['searchable'] == 'true') {
-                $search_value = $data['columns'][$i]['search']['value'];
-                $columnName = $column;
-
+                $columnName = $aColumns[$i];
                 if (strpos($columnName, ' as ') !== false) {
                     $columnName = strbefore($columnName, ' as');
                 }
-
                 if ($search_value != '') {
-                    // Add condition for current column
-                    $likeClause = $CI->db->escape_like_str($search_value);
-                    $sWhere .= "convert($columnName USING utf8) LIKE '%$likeClause%' ESCAPE '!' OR ";
-
-                    // Process additional select fields if any
+                    $sWhere .= 'convert(' . $columnName . ' USING utf8)' . " LIKE '%" . $CI->db->escape_like_str($search_value) . "%' ESCAPE '!' OR ";
                     if (count($additionalSelect) > 0) {
                         foreach ($additionalSelect as $searchAdditionalField) {
-                            $sWhere .= "convert($searchAdditionalField USING utf8) LIKE '%$likeClause%' ESCAPE '!' OR ";
+                            $sWhere .= 'convert(' . $searchAdditionalField . ' USING utf8)' . " LIKE '" . $CI->db->escape_like_str($search_value) . "%' ESCAPE '!' OR ";
                         }
                     }
-
                     $searchFound++;
                 }
             }
         }
-
         if ($searchFound > 0) {
             $sWhere = substr_replace($sWhere, '', -3);
             $sWhere .= ')';
@@ -220,13 +207,11 @@ function data_tables_init($aColumns, $sIndexColumn, $sTable, $join = [], $where 
      * SQL queries
      * Get data to display
      */
-    $additionalColumns = '';
+    $_additionalSelect = '';
     if (count($additionalSelect) > 0) {
-        $additionalColumns = ',' . implode(',', $additionalSelect);
+        $_additionalSelect = ',' . implode(',', $additionalSelect);
     }
-
     $where = implode(' ', $where);
-
     if ($sWhere == '') {
         $where = trim($where);
         if (startsWith($where, 'AND') || startsWith($where, 'OR')) {
@@ -241,8 +226,8 @@ function data_tables_init($aColumns, $sIndexColumn, $sTable, $join = [], $where 
 
     $join = implode(' ', $join);
 
-    $resultQuery = '
-    SELECT ' . str_replace(' , ', ' ', implode(', ', $allColumns)) . ' ' . $additionalColumns . "
+    $sQuery = '
+    SELECT SQL_CALC_FOUND_ROWS ' . str_replace(' , ', ' ', implode(', ', $_aColumns)) . ' ' . $_additionalSelect . "
     FROM $sTable
     " . $join . "
     $sWhere
@@ -252,42 +237,44 @@ function data_tables_init($aColumns, $sIndexColumn, $sTable, $join = [], $where 
     $sLimit
     ";
 
-    $rResult = hooks()->apply_filters(
-        'datatables_sql_query_results',
-        $CI->db->query($resultQuery)->result_array(),
-        [
-            'table' => $sTable,
-            'limit' => $sLimit,
-            'order' => $sOrder,
-        ]
-    );
+    $rResult = $CI->db->query($sQuery)->result_array();
+
+    $rResult = hooks()->apply_filters('datatables_sql_query_results', $rResult, [
+        'table' => $sTable,
+        'limit' => $sLimit,
+        'order' => $sOrder,
+    ]);
 
     /* Data set length after filtering */
-    $iFilteredTotal = $CI->db->query("
-        SELECT COUNT(*) as iFilteredTotal
-        FROM $sTable
-        " . $join . "
-        $sWhere
-        " . $where . "
-        $sGroupBy
-    ")->row()->iFilteredTotal;
-
+    $sQuery = '
+    SELECT FOUND_ROWS()
+    ';
+    $_query         = $CI->db->query($sQuery)->result_array();
+    $iFilteredTotal = $_query[0]['FOUND_ROWS()'];
     if (startsWith($where, 'AND')) {
         $where = 'WHERE ' . substr($where, 3);
     }
-
     /* Total data set length */
-    $iTotal = $CI->db->query("SELECT COUNT(*) as iTotal from $sTable $join $where")->row()->iTotal;
+    $sQuery = '
+    SELECT COUNT(' . $sTable . '.' . $sIndexColumn . ")
+    FROM $sTable " . $join . ' ' . $where;
+
+    $_query = $CI->db->query($sQuery)->result_array();
+    $iTotal = $_query[0]['COUNT(' . $sTable . '.' . $sIndexColumn . ')'];
+    /*
+     * Output
+     */
+    $output = [
+        'draw'                 => $__post['draw'] ? intval($__post['draw']) : 0,
+        'iTotalRecords'        => $iTotal,
+        'iTotalDisplayRecords' => $iFilteredTotal,
+        'aaData'               => [],
+        ];
 
     return [
         'rResult' => $rResult,
-        'output'  => [
-            'draw'                 => $data['draw'] ? intval($data['draw']) : 0,
-            'iTotalRecords'        => $iTotal,
-            'iTotalDisplayRecords' => $iFilteredTotal,
-            'aaData'               => [],
-        ],
-    ];
+        'output'  => $output,
+        ];
 }
 
 /**
@@ -329,7 +316,7 @@ function render_datatable($headings = [], $class = '', $additional_classes = [''
     if (count($additional_classes) > 0) {
         $_additional_classes = ' ' . implode(' ', $additional_classes);
     }
-    $CI      = &get_instance();
+    $CI      = & get_instance();
     $browser = $CI->agent->browser();
     $IEfix   = '';
     if ($browser == 'Internet Explorer') {

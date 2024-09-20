@@ -4,13 +4,13 @@
       <div class="modal-content">
          <div class="modal-header">
             <button type="button" class="close" onclick="close_modal_manually('._project_file'); return false;"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title"><?php echo e($file->subject); ?></h4>
+            <h4 class="modal-title"><?php echo $file->subject; ?></h4>
          </div>
          <div class="modal-body">
             <div class="row">
                <div class="col-md-6 border-right project_file_area">
                   <?php
-                     if ($file->staffid == get_staff_user_id() || staff_can('create',  'projects')) {
+                     if ($file->staffid == get_staff_user_id() || has_permission('projects', '', 'create')) {
                          ?>
                   <?php echo render_input('file_subject', 'project_discussion_subject', $file->subject, 'text', ['onblur' => 'update_file_data(' . $file->id . ')']); ?>
                   <?php echo render_textarea('file_description', 'project_discussion_description', $file->description, ['onblur' => 'update_file_data(' . $file->id . ')']); ?>
@@ -21,7 +21,7 @@
                   <?php if (!empty($file->description)) {
                              ?>
                   <p class="bold"><?php echo _l('project_discussion_description'); ?></p>
-                  <div class="tw-text-neutral-500"><?php echo process_text_content_for_display($file->description); ?></div>
+                  <p class="text-muted"><?php echo $file->description; ?></p>
                   <hr />
                   <?php
                          } ?>
@@ -29,7 +29,7 @@
                      } ?>
                   <?php if (!empty($file->external) && $file->external == 'dropbox') {
                          ?>
-                     <a href="<?php echo e($file->external_link); ?>" target="_blank" class="btn btn-primary mbot20">
+                     <a href="<?php echo $file->external_link; ?>" target="_blank" class="btn btn-primary mbot20">
                         <i class="fa fa-dropbox" aria-hidden="true"></i>
                         <?php echo _l('open_in_dropbox'); ?>
                      </a>
@@ -37,7 +37,7 @@
                   <?php
                      } elseif (!empty($file->external) && $file->external == 'gdrive') {
                          ?>
-                     <a href="<?php echo e($file->external_link); ?>" target="_blank" class="btn btn-primary mbot20">
+                     <a href="<?php echo $file->external_link; ?>" target="_blank" class="btn btn-primary mbot20">
                            <i class="fa-brands fa-google" aria-hidden="true"></i>
                            <?php echo _l('open_in_google'); ?>
                      </a>
@@ -45,18 +45,10 @@
                   <?php
                      } ?>
                   <?php
-                  $path = PROJECT_ATTACHMENTS_FOLDER . $file->project_id . '/' . $file->file_name;
-                  $fileUrl = base_url('uploads/projects/' . $file->project_id . '/' . $file->file_name);
-                  ?>
-                   <a href="<?php echo e($fileUrl); ?>" target="_blank" class="btn btn-primary mbot20" download="<?php echo e($file->original_file_name); ?>">
-                       <i class="fa fa-file-download" aria-hidden="true"></i>
-                       <?php echo _l('download'); ?>
-                   </a>
-                   <br />
-                  <?php
-                  if (is_image($path)) {
-                  ?>
-                  <img src="<?php echo e($fileUrl); ?>" class="img img-responsive">
+                     $path = PROJECT_ATTACHMENTS_FOLDER . $file->project_id . '/' . $file->file_name;
+                     if (is_image($path)) {
+                         ?>
+                  <img src="<?php echo base_url('uploads/projects/' . $file->project_id . '/' . $file->file_name); ?>" class="img img-responsive">
                   <?php
                      } elseif (!empty($file->external) && !empty($file->thumbnail_link) && $file->external == 'dropbox') {
                          ?>
@@ -64,7 +56,7 @@
                   <?php
                      } elseif (strpos($file->filetype, 'pdf') !== false && empty($file->external)) {
                          ?>
-                  <iframe src="<?php echo e($fileUrl); ?>" height="100%" width="100%" frameborder="0"></iframe>
+                  <iframe src="<?php echo base_url('uploads/projects/' . $file->project_id . '/' . $file->file_name); ?>" height="100%" width="100%" frameborder="0"></iframe>
                   <?php
                      } elseif (is_html5_video($path)) {
                          ?>
@@ -76,9 +68,9 @@
                          echo $previewMarkdown;
                      } else {
                          if (empty($file->external)) {
-                             echo '<a href="' . site_url('uploads/projects/' . $file->project_id . '/' . $file->file_name) . '" download="' . e($file->original_file_name) . '">' . e($file->original_file_name) . '</a>';
+                             echo '<a href="' . site_url('uploads/projects/' . $file->project_id . '/' . $file->file_name) . '" download="' . $file->original_file_name . '">' . $file->file_name . '</a>';
                          } else {
-                             echo '<a href="' . $file->external_link . '" target="_blank">' . e($file->original_file_name) . '</a>';
+                             echo '<a href="' . $file->external_link . '" target="_blank">' . $file->file_name . '</a>';
                          }
                          echo '<p class="text-muted">' . _l('no_preview_available_for_file') . '</p>';
                      } ?>
@@ -100,8 +92,8 @@
 <!-- /.modal -->
 <?php $discussion_lang = get_project_discussions_language_array(); ?>
 <script>
- var discussion_id = '<?php echo e($file->id); ?>';
- var discussion_user_profile_image_url = '<?php echo e($discussion_user_profile_image_url); ?>';
+ var discussion_id = '<?php echo $file->id; ?>';
+ var discussion_user_profile_image_url = '<?php echo $discussion_user_profile_image_url; ?>';
  var current_user_is_admin = '<?php echo is_admin(); ?>';
  $('body').find('._project_file').modal({show:true, backdrop:'static', keyboard:false});
 </script>

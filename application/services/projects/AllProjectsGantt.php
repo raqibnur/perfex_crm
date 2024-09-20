@@ -44,7 +44,7 @@ class AllProjectsGantt extends AbstractGantt
 
     protected function queryProjectsForStatus($id)
     {
-        if (staff_cant('view', 'projects')) {
+        if (!has_permission('projects', '', 'view')) {
             $this->ci->db->where(db_prefix() . 'projects.id IN (SELECT project_id FROM ' . db_prefix() . 'project_members WHERE staff_id=' . get_staff_user_id() . ')');
         }
 

@@ -7,8 +7,8 @@ class Clients extends AdminController
     /* List all clients */
     public function index()
     {
-        if (staff_cant('view', 'customers')) {
-            if (!have_assigned_customers() && staff_cant('create', 'customers')) {
+        if (!has_permission('customers', '', 'view')) {
+            if (!have_assigned_customers() && !has_permission('customers', '', 'create')) {
                 access_denied('customers');
             }
         }
@@ -33,26 +33,26 @@ class Clients extends AdminController
         $data['customer_admins'] = $this->clients_model->get_customers_admin_unique_ids();
 
         $whereContactsLoggedIn = '';
-        if (staff_cant('view', 'customers')) {
+        if (!has_permission('customers', '', 'view')) {
             $whereContactsLoggedIn = ' AND userid IN (SELECT customer_id FROM ' . db_prefix() . 'customer_admins WHERE staff_id=' . get_staff_user_id() . ')';
         }
 
         $data['contacts_logged_in_today'] = $this->clients_model->get_contacts('', 'last_login LIKE "' . date('Y-m-d') . '%"' . $whereContactsLoggedIn);
 
         $data['countries'] = $this->clients_model->get_clients_distinct_countries();
-        $data['table'] = App_table::find('clients');
+
         $this->load->view('admin/clients/manage', $data);
     }
 
     public function table()
     {
-        if (staff_cant('view', 'customers')) {
-            if (!have_assigned_customers() && staff_cant('create', 'customers')) {
+        if (!has_permission('customers', '', 'view')) {
+            if (!have_assigned_customers() && !has_permission('customers', '', 'create')) {
                 ajax_access_denied();
             }
         }
 
-        App_table::find('clients')->output();
+        $this->app->get_table_data('clients');
     }
 
     public function all_contacts()
@@ -73,7 +73,7 @@ class Clients extends AdminController
     /* Edit client or add new client*/
     public function client($id = '')
     {
-        if (staff_cant('view', 'customers')) {
+        if (!has_permission('customers', '', 'view')) {
             if ($id != '' && !is_customer_admin($id)) {
                 access_denied('customers');
             }
@@ -81,7 +81,7 @@ class Clients extends AdminController
 
         if ($this->input->post() && !$this->input->is_ajax_request()) {
             if ($id == '') {
-                if (staff_cant('create', 'customers')) {
+                if (!has_permission('customers', '', 'create')) {
                     access_denied('customers');
                 }
 
@@ -93,7 +93,7 @@ class Clients extends AdminController
                     $save_and_add_contact = true;
                 }
                 $id = $this->clients_model->add($data);
-                if (staff_cant('view', 'customers')) {
+                if (!has_permission('customers', '', 'view')) {
                     $assign['customer_admins']   = [];
                     $assign['customer_admins'][] = get_staff_user_id();
                     $this->clients_model->assign_admins($assign, $id);
@@ -107,7 +107,7 @@ class Clients extends AdminController
                     }
                 }
             } else {
-                if (staff_cant('edit', 'customers')) {
+                if (!has_permission('customers', '', 'edit')) {
                     if (!is_customer_admin($id)) {
                         access_denied('customers');
                     }
@@ -178,7 +178,7 @@ class Clients extends AdminController
                 $this->load->model('projects_model');
                 $data['project_statuses'] = $this->projects_model->get_project_statuses();
             } elseif ($group == 'statement') {
-                if (staff_cant('view', 'invoices') && staff_cant('view', 'payments')) {
+                if (!has_permission('invoices', '', 'view') && !has_permission('payments', '', 'view')) {
                     set_alert('danger', _l('access_denied'));
                     redirect(admin_url('clients/client/' . $id));
                 }
@@ -272,7 +272,7 @@ class Clients extends AdminController
     // Used to give a tip to the user if the company exists when new company is created
     public function check_duplicate_customer_name()
     {
-        if (staff_can('create',  'customers')) {
+        if (has_permission('customers', '', 'create')) {
             $companyName = trim($this->input->post('company'));
             $response    = [
                 'exists'  => (bool) total_rows(db_prefix() . 'clients', ['company' => $companyName]) > 0,
@@ -284,7 +284,7 @@ class Clients extends AdminController
 
     public function save_longitude_and_latitude($client_id)
     {
-        if (staff_cant('edit', 'customers')) {
+        if (!has_permission('customers', '', 'edit')) {
             if (!is_customer_admin($client_id)) {
                 ajax_access_denied();
             }
@@ -304,7 +304,7 @@ class Clients extends AdminController
 
     public function form_contact($customer_id, $contact_id = '')
     {
-        if (staff_cant('view', 'customers')) {
+        if (!has_permission('customers', '', 'view')) {
             if (!is_customer_admin($customer_id)) {
                 echo _l('access_denied');
                 die;
@@ -335,7 +335,7 @@ class Clients extends AdminController
             unset($data['contactid']);
 
             if ($contact_id == '') {
-                if (staff_cant('create', 'customers')) {
+                if (!has_permission('customers', '', 'create')) {
                     if (!is_customer_admin($customer_id)) {
                         header($_SERVER['SERVER_PROTOCOL'] . ' 400 Bad error');
                         echo json_encode([
@@ -361,7 +361,7 @@ class Clients extends AdminController
                 ]);
                 die;
             }
-            if (staff_cant('edit', 'customers')) {
+            if (!has_permission('customers', '', 'edit')) {
                 if (!is_customer_admin($customer_id)) {
                     header($_SERVER['SERVER_PROTOCOL'] . ' 400 Bad error');
                     echo json_encode([
@@ -446,7 +446,7 @@ class Clients extends AdminController
         }
         $this->clients_model->confirm_registration($client_id);
         set_alert('success', _l('customer_registration_successfully_confirmed'));
-        redirect(previous_url() ?: $_SERVER['HTTP_REFERER']);
+        redirect($_SERVER['HTTP_REFERER']);
     }
 
     public function update_file_share_visibility()
@@ -487,7 +487,7 @@ class Clients extends AdminController
 
     public function consents($id)
     {
-        if (staff_cant('view', 'customers')) {
+        if (!has_permission('customers', '', 'view')) {
             if (!is_customer_admin(get_user_id_by_contact_id($id))) {
                 echo _l('access_denied');
                 die;
@@ -544,7 +544,7 @@ class Clients extends AdminController
 
     public function assign_admins($id)
     {
-        if (staff_cant('create', 'customers') && staff_cant('edit', 'customers')) {
+        if (!has_permission('customers', '', 'create') && !has_permission('customers', '', 'edit')) {
             access_denied('customers');
         }
         $success = $this->clients_model->assign_admins($this->input->post(), $id);
@@ -557,7 +557,7 @@ class Clients extends AdminController
 
     public function delete_customer_admin($customer_id, $staff_id)
     {
-        if (staff_cant('create', 'customers') && staff_cant('edit', 'customers')) {
+        if (!has_permission('customers', '', 'create') && !has_permission('customers', '', 'edit')) {
             access_denied('customers');
         }
 
@@ -569,7 +569,7 @@ class Clients extends AdminController
 
     public function delete_contact($customer_id, $id)
     {
-        if (staff_cant('delete', 'customers')) {
+        if (!has_permission('customers', '', 'delete')) {
             if (!is_customer_admin($customer_id)) {
                 access_denied('customers');
             }
@@ -610,16 +610,16 @@ class Clients extends AdminController
 
     public function delete_attachment($customer_id, $id)
     {
-        if (staff_can('delete',  'customers') || is_customer_admin($customer_id)) {
+        if (has_permission('customers', '', 'delete') || is_customer_admin($customer_id)) {
             $this->clients_model->delete_attachment($id);
         }
-        redirect(previous_url() ?: $_SERVER['HTTP_REFERER']);
+        redirect($_SERVER['HTTP_REFERER']);
     }
 
     /* Delete client */
     public function delete($id)
     {
-        if (staff_cant('delete', 'customers')) {
+        if (!has_permission('customers', '', 'delete')) {
             access_denied('customers');
         }
         if (!$id) {
@@ -654,7 +654,7 @@ class Clients extends AdminController
     /* Change client status / active / inactive */
     public function change_contact_status($id, $status)
     {
-        if (staff_can('edit',  'customers') || is_customer_admin(get_user_id_by_contact_id($id))) {
+        if (has_permission('customers', '', 'edit') || is_customer_admin(get_user_id_by_contact_id($id))) {
             if ($this->input->is_ajax_request()) {
                 $this->clients_model->change_contact_status($id, $status);
             }
@@ -672,9 +672,9 @@ class Clients extends AdminController
     /* Zip function for credit notes */
     public function zip_credit_notes($id)
     {
-        $has_permission_view = staff_can('view',  'credit_notes');
+        $has_permission_view = has_permission('credit_notes', '', 'view');
 
-        if (!$has_permission_view && staff_cant('view_own', 'credit_notes')) {
+        if (!$has_permission_view && !has_permission('credit_notes', '', 'view_own')) {
             access_denied('Zip Customer Credit Notes');
         }
 
@@ -695,8 +695,8 @@ class Clients extends AdminController
 
     public function zip_invoices($id)
     {
-        $has_permission_view = staff_can('view',  'invoices');
-        if (!$has_permission_view && staff_cant('view_own', 'invoices')
+        $has_permission_view = has_permission('invoices', '', 'view');
+        if (!$has_permission_view && !has_permission('invoices', '', 'view_own')
             && get_option('allow_staff_view_invoices_assigned') == '0') {
             access_denied('Zip Customer Invoices');
         }
@@ -719,8 +719,8 @@ class Clients extends AdminController
     /* Since version 1.0.2 zip client estimates */
     public function zip_estimates($id)
     {
-        $has_permission_view = staff_can('view',  'estimates');
-        if (!$has_permission_view && staff_cant('view_own', 'estimates')
+        $has_permission_view = has_permission('estimates', '', 'view');
+        if (!$has_permission_view && !has_permission('estimates', '', 'view_own')
             && get_option('allow_staff_view_estimates_assigned') == '0') {
             access_denied('Zip Customer Estimates');
         }
@@ -742,9 +742,9 @@ class Clients extends AdminController
 
     public function zip_payments($id)
     {
-        $has_permission_view = staff_can('view',  'payments');
+        $has_permission_view = has_permission('payments', '', 'view');
 
-        if (!$has_permission_view && staff_cant('view_own', 'invoices')
+        if (!$has_permission_view && !has_permission('invoices', '', 'view_own')
             && get_option('allow_staff_view_invoices_assigned') == '0') {
             access_denied('Zip Customer Payments');
         }
@@ -765,7 +765,7 @@ class Clients extends AdminController
 
     public function import()
     {
-        if (staff_cant('create', 'customers')) {
+        if (!has_permission('customers', '', 'create')) {
             access_denied('customers');
         }
 
@@ -921,7 +921,7 @@ class Clients extends AdminController
 
         $this->clients_model->vault_entry_create($data, $customer_id);
         set_alert('success', _l('added_successfully', _l('vault_entry')));
-        redirect(previous_url() ?: $_SERVER['HTTP_REFERER']);
+        redirect($_SERVER['HTTP_REFERER']);
     }
 
     public function vault_entry_update($entry_id)
@@ -954,7 +954,7 @@ class Clients extends AdminController
             $this->clients_model->vault_entry_update($entry_id, $data);
             set_alert('success', _l('updated_successfully', _l('vault_entry')));
         }
-        redirect(previous_url() ?: $_SERVER['HTTP_REFERER']);
+        redirect($_SERVER['HTTP_REFERER']);
     }
 
     public function vault_entry_delete($id)
@@ -963,7 +963,7 @@ class Clients extends AdminController
         if ($entry->creator == get_staff_user_id() || is_admin()) {
             $this->clients_model->vault_entry_delete($id);
         }
-        redirect(previous_url() ?: $_SERVER['HTTP_REFERER']);
+        redirect($_SERVER['HTTP_REFERER']);
     }
 
     public function vault_encrypt_password()
@@ -1005,7 +1005,7 @@ class Clients extends AdminController
     {
         $customer_id = $this->input->get('customer_id');
 
-        if (staff_cant('view', 'invoices') && staff_cant('view', 'payments')) {
+        if (!has_permission('invoices', '', 'view') && !has_permission('payments', '', 'view')) {
             set_alert('danger', _l('access_denied'));
             redirect(admin_url('clients/client/' . $customer_id));
         }
@@ -1038,7 +1038,7 @@ class Clients extends AdminController
     {
         $customer_id = $this->input->get('customer_id');
 
-        if (staff_cant('view', 'invoices') && staff_cant('view', 'payments')) {
+        if (!has_permission('invoices', '', 'view') && !has_permission('payments', '', 'view')) {
             set_alert('danger', _l('access_denied'));
             redirect(admin_url('clients/client/' . $customer_id));
         }
@@ -1063,7 +1063,7 @@ class Clients extends AdminController
 
     public function statement()
     {
-        if (staff_cant('view', 'invoices') && staff_cant('view', 'payments')) {
+        if (!has_permission('invoices', '', 'view') && !has_permission('payments', '', 'view')) {
             header($_SERVER['SERVER_PROTOCOL'] . ' 400 Bad error');
             echo _l('access_denied');
             die;

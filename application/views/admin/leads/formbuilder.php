@@ -49,7 +49,7 @@
                             <div role="tabpanel" class="tab-pane" id="tab_form_integration">
                                 <p><?php echo _l('form_integration_code_help'); ?></p>
                                 <textarea class="form-control"
-                                    rows="2"><iframe width="600" height="850" src="<?php echo site_url('forms/wtl/' . $form->form_key); ?>" frameborder="0" sandbox="allow-top-navigation allow-forms allow-scripts allow-same-origin allow-popups" allowfullscreen></iframe></textarea>
+                                    rows="2"><iframe width="600" height="850" src="<?php echo site_url('forms/wtl/' . $form->form_key); ?>" frameborder="0" sandbox="allow-top-navigation allow-forms allow-same-origin allow-popups" allowfullscreen></iframe></textarea>
                                 <h4 class="tw-my-5 bold">Share direct link</h4>
                                 <p>
                                     <span class="label label-default">
@@ -152,9 +152,9 @@
                                                         data-none-selected-text="<?php echo _l('dropdown_non_selected_tex'); ?>">
                                                         <option value=""></option>
                                                         <?php foreach ($languages as $availableLanguage) { ?>
-                                                        <option value="<?php echo e($availableLanguage); ?>"
+                                                        <option value="<?php echo $availableLanguage; ?>"
                                                             <?php echo(isset($form) && $form->language == $availableLanguage) || (!isset($form) && get_option('active_language') == $availableLanguage) ? 'selected' : ''; ?>>
-                                                            <?php echo e(ucfirst($availableLanguage)); ?>
+                                                            <?php echo ucfirst($availableLanguage); ?>
                                                         </option>
                                                         <?php  } ?>
                                                     </select>
@@ -233,7 +233,7 @@
                                                 <input type="checkbox" name="allow_duplicate" id="allow_duplicate"
                                                     <?php echo isset($form) && $form->allow_duplicate == 1 || !isset($form) ? 'checked' : ''; ?>>
                                                 <label for="allow_duplicate">
-                                                    <?php echo e(_l('form_allow_duplicate', _l('lead_lowercase'))); ?>
+                                                    <?php echo _l('form_allow_duplicate', _l('lead_lowercase')); ?>
                                                 </label>
                                             </div>
                                             <div
@@ -250,10 +250,10 @@
                                                             data-none-selected-text="<?php echo _l('dropdown_non_selected_tex'); ?>">
                                                             <option value=""></option>
                                                             <?php foreach ($db_fields as $field) { ?>
-                                                            <option value="<?php echo e($field->name); ?>"
+                                                            <option value="<?php echo $field->name; ?>"
                                                                 <?php echo isset($form) && $form->track_duplicate_field == $field->name ? 'selected' : ''; ?>
                                                                 <?php echo isset($form) && $form->track_duplicate_field_and == $field->name ? 'disabled' : ''; ?>>
-                                                                <?php echo e($field->label); ?>
+                                                                <?php echo $field->label; ?>
                                                             </option>
                                                             <?php } ?>
                                                         </select>
@@ -270,10 +270,10 @@
                                                             data-none-selected-text="<?php echo _l('dropdown_non_selected_tex'); ?>">
                                                             <option value=""></option>
                                                             <?php foreach ($db_fields as $field) { ?>
-                                                            <option value="<?php echo e($field->name); ?>"
+                                                            <option value="<?php echo $field->name; ?>"
                                                                 <?php echo isset($form) && $form->track_duplicate_field_and == $field->name ? ' selected' : ''; ?>
                                                                 <?php echo isset($form) && $form->track_duplicate_field == $field->name ? 'disabled' : ''; ?>>
-                                                                <?php echo e($field->label); ?>
+                                                                <?php echo $field->label; ?>
                                                             </option>
                                                             <?php } ?>
                                                         </select>
@@ -289,7 +289,7 @@
                                                                 data-toggle="tooltip"
                                                                 data-title="<?php echo _l('create_the_duplicate_form_data_as_task_help'); ?>">
                                                             </i>
-                                                            <?php echo e(_l('create_the_duplicate_form_data_as_task', _l('lead_lowercase'))); ?>
+                                                            <?php echo _l('create_the_duplicate_form_data_as_task', _l('lead_lowercase')); ?>
                                                         </label>
                                                     </div>
                                                 </div>

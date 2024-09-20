@@ -75,7 +75,16 @@
                         class="mbot20 inline-block full-width"><?php echo _l('home_widget_view_all'); ?></a>
                     <div class="clearfix"></div>
                     <div class="_hidden_inputs _filters _tasks_filters">
-                        <?php echo form_hidden('my_tasks', true); ?>
+                        <?php
+                           echo form_hidden('my_tasks', true);
+                           foreach ($task_statuses as $status) {
+                               $val = 'true';
+                               if ($status['id'] == Tasks_model::STATUS_COMPLETE) {
+                                   $val = '';
+                               }
+                               echo form_hidden('task_status_' . $status['id'], $val);
+                           }
+                           ?>
                     </div>
                     <?php $this->load->view('admin/tasks/_table'); ?>
                 </div>
@@ -140,13 +149,13 @@
                         <div class="feed-item">
                             <div class="date">
                                 <span class="text-has-action" data-toggle="tooltip"
-                                    data-title="<?php echo e(_dt($log['date'])); ?>">
-                                    <?php echo e(time_ago($log['date'])); ?>
+                                    data-title="<?php echo _dt($log['date']); ?>">
+                                    <?php echo time_ago($log['date']); ?>
                                 </span>
                             </div>
                             <div class="text">
-                                <?php echo e($log['staffid']); ?><br />
-                                <?php echo e($log['description']); ?>
+                                <?php echo $log['staffid']; ?><br />
+                                <?php echo $log['description']; ?>
                             </div>
                         </div>
                         <?php } ?>

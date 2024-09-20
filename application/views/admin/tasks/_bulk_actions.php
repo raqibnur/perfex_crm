@@ -8,7 +8,7 @@
          </div>
          <div class="modal-body">
 
-            <?php if (staff_can('delete',  'tasks')) { ?>
+            <?php if (has_permission('tasks', '', 'delete')) { ?>
                <div class="checkbox checkbox-danger">
                   <input type="checkbox" name="mass_delete" id="mass_delete">
                   <label for="mass_delete"><?php echo _l('mass_delete'); ?></label>
@@ -21,11 +21,11 @@
                   <select name="move_to_status_tasks_bulk_action" id="move_to_status_tasks_bulk_action" data-width="100%" class="selectpicker" data-none-selected-text="<?php echo _l('task_status'); ?>">
                      <option value=""></option>
                      <?php foreach ($task_statuses as $status) { ?>
-                        <option value="<?php echo e($status['id']); ?>"><?php echo e($status['name']); ?></option>
+                        <option value="<?php echo $status['id']; ?>"><?php echo $status['name']; ?></option>
                      <?php } ?>
                   </select>
                </div>
-               <?php if (staff_can('edit',  'tasks')) { ?>
+               <?php if (has_permission('tasks', '', 'edit')) { ?>
 
                   <div class="form-group">
                      <label for="task_bulk_priority" class="control-label"><?php echo _l('task_add_edit_priority'); ?></label>

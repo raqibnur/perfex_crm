@@ -15,7 +15,7 @@ class Invoice_items extends AdminController
     /* List all available items */
     public function index()
     {
-        if (staff_cant('view', 'items')) {
+        if (!has_permission('items', '', 'view')) {
             access_denied('Invoice Items');
         }
 
@@ -34,7 +34,7 @@ class Invoice_items extends AdminController
 
     public function table()
     {
-        if (staff_cant('view', 'items')) {
+        if (!has_permission('items', '', 'view')) {
             ajax_access_denied();
         }
         $this->app->get_table_data('invoice_items');
@@ -43,11 +43,11 @@ class Invoice_items extends AdminController
     /* Edit or update items / ajax request /*/
     public function manage()
     {
-        if (staff_can('view',  'items')) {
+        if (has_permission('items', '', 'view')) {
             if ($this->input->post()) {
                 $data = $this->input->post();
                 if ($data['itemid'] == '') {
-                    if (staff_cant('create', 'items')) {
+                    if (!has_permission('items', '', 'create')) {
                         header('HTTP/1.0 400 Bad error');
                         echo _l('access_denied');
                         die;
@@ -65,7 +65,7 @@ class Invoice_items extends AdminController
                         'item'    => $this->invoice_items_model->get($id),
                     ]);
                 } else {
-                    if (staff_cant('edit', 'items')) {
+                    if (!has_permission('items', '', 'edit')) {
                         header('HTTP/1.0 400 Bad error');
                         echo _l('access_denied');
                         die;
@@ -86,7 +86,7 @@ class Invoice_items extends AdminController
 
     public function import()
     {
-        if (staff_cant('create', 'items')) {
+        if (!has_permission('items', '', 'create')) {
             access_denied('Items Import');
         }
 
@@ -121,7 +121,7 @@ class Invoice_items extends AdminController
 
     public function add_group()
     {
-        if ($this->input->post() && staff_can('create',  'items')) {
+        if ($this->input->post() && has_permission('items', '', 'create')) {
             $this->invoice_items_model->add_group($this->input->post());
             set_alert('success', _l('added_successfully', _l('item_group')));
         }
@@ -129,7 +129,7 @@ class Invoice_items extends AdminController
 
     public function update_group($id)
     {
-        if ($this->input->post() && staff_can('edit',  'items')) {
+        if ($this->input->post() && has_permission('items', '', 'edit')) {
             $this->invoice_items_model->edit_group($this->input->post(), $id);
             set_alert('success', _l('updated_successfully', _l('item_group')));
         }
@@ -137,7 +137,7 @@ class Invoice_items extends AdminController
 
     public function delete_group($id)
     {
-        if (staff_can('delete',  'items')) {
+        if (has_permission('items', '', 'delete')) {
             if ($this->invoice_items_model->delete_group($id)) {
                 set_alert('success', _l('deleted', _l('item_group')));
             }
@@ -148,7 +148,7 @@ class Invoice_items extends AdminController
     /* Delete item*/
     public function delete($id)
     {
-        if (staff_cant('delete', 'items')) {
+        if (!has_permission('items', '', 'delete')) {
             access_denied('Invoice Items');
         }
 
@@ -173,7 +173,7 @@ class Invoice_items extends AdminController
         $total_deleted = 0;
         if ($this->input->post()) {
             $ids                   = $this->input->post('ids');
-            $has_permission_delete = staff_can('delete',  'items');
+            $has_permission_delete = has_permission('items', '', 'delete');
             if (is_array($ids)) {
                 foreach ($ids as $id) {
                     if ($this->input->post('mass_delete')) {
@@ -226,7 +226,7 @@ class Invoice_items extends AdminController
     /* Copy Item */
     public function copy($id)
     {
-        if (staff_cant('create', 'items')) {
+        if (!has_permission('items', '', 'create')) {
             access_denied('Create Item');
         }
 

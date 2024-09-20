@@ -4,7 +4,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 $aColumns = [];
 
-if (staff_can('delete',  'items')) {
+if (has_permission('items', '', 'delete')) {
     $aColumns[] = '1';
 }
 
@@ -60,18 +60,18 @@ foreach ($rResult as $aRow) {
     $row[] = '<div class="checkbox"><input type="checkbox" value="' . $aRow['id'] . '"><label></label></div>';
 
     $descriptionOutput = '';
-    $descriptionOutput = '<a href="#" data-toggle="modal" data-target="#sales_item_modal" data-id="' . $aRow['id'] . '">' . e($aRow['description']) . '</a>';
+    $descriptionOutput = '<a href="#" data-toggle="modal" data-target="#sales_item_modal" data-id="' . $aRow['id'] . '">' . $aRow['description'] . '</a>';
     $descriptionOutput .= '<div class="row-options">';
 
-    if (staff_can('edit',  'items')) {
+    if (has_permission('items', '', 'edit')) {
         $descriptionOutput .= '<a href="#" data-toggle="modal" data-target="#sales_item_modal" data-id="' . $aRow['id'] . '">' . _l('edit') . '</a>';
     }
 
-    if (staff_can('delete',  'items')) {
+    if (has_permission('items', '', 'delete')) {
         $descriptionOutput .= ' | <a href="' . admin_url('invoice_items/delete/' . $aRow['id']) . '" class="text-danger _delete">' . _l('delete') . '</a>';
     }
 
-    if (staff_can('create',  'items')) {
+    if (has_permission('items', '', 'create')) {
         $descriptionOutput .= ' | <a href="' . admin_url('invoice_items/copy/' . $aRow['id']) . '" class=" _edit_item">' . _l('copy') . '</a>';
     }
 
@@ -79,18 +79,18 @@ foreach ($rResult as $aRow) {
 
     $row[] = $descriptionOutput;
 
-    $row[] = e($aRow['long_description']);
+    $row[] = $aRow['long_description'];
 
-    $row[] = e(app_format_money($aRow['rate'], get_base_currency()));
+    $row[] = app_format_money($aRow['rate'], get_base_currency());
 
     $aRow['taxrate_1'] = $aRow['taxrate_1'] ?? 0;
-    $row[]             = '<span data-toggle="tooltip" title="' . e($aRow['taxname_1']) . '" data-taxid="' . $aRow['tax_id_1'] . '">' . e(app_format_number($aRow['taxrate_1'])) . '%' . '</span>';
+    $row[]             = '<span data-toggle="tooltip" title="' . $aRow['taxname_1'] . '" data-taxid="' . $aRow['tax_id_1'] . '">' . app_format_number($aRow['taxrate_1']) . '%' . '</span>';
 
     $aRow['taxrate_2'] = $aRow['taxrate_2'] ?? 0;
-    $row[]             = '<span data-toggle="tooltip" title="' . e($aRow['taxname_2']) . '" data-taxid="' . $aRow['tax_id_2'] . '">' . e(app_format_number($aRow['taxrate_2'])) . '%' . '</span>';
+    $row[]             = '<span data-toggle="tooltip" title="' . $aRow['taxname_2'] . '" data-taxid="' . $aRow['tax_id_2'] . '">' . app_format_number($aRow['taxrate_2']) . '%' . '</span>';
     $row[]             = $aRow['unit'];
 
-    $row[] = e($aRow['group_name']);
+    $row[] = $aRow['group_name'];
 
     // Custom fields add values
     foreach ($customFieldsColumns as $customFieldColumn) {

@@ -7,7 +7,7 @@
             <div class="col-md-8 col-md-offset-2">
                 <div class="tw-flex tw-justify-between tw-mb-2">
                     <h4 class="tw-mt-0 tw-font-semibold tw-text-neutral-700">
-                        <span class="tw-text-lg"><?php echo e($title); ?></span>
+                        <span class="tw-text-lg"><?php echo $title; ?></span>
                         <?php if (isset($article)) { ?>
                         <br />
                         <small>
@@ -30,11 +30,12 @@
                     <div>
                         <?php if (isset($article)) { ?>
                         <p>
-                            <?php if (staff_can('create',  'knowledge_base')) { ?>
+
+                            <?php if (has_permission('knowledge_base', '', 'create')) { ?>
                             <a href="<?php echo admin_url('knowledge_base/article'); ?>"
                                 class="btn btn-success pull-right"><?php echo _l('kb_article_new_article'); ?></a>
                             <?php } ?>
-                            <?php if (staff_can('delete',  'knowledge_base')) { ?>
+                            <?php if (has_permission('knowledge_base', '', 'delete')) { ?>
                             <a href="<?php echo admin_url('knowledge_base/delete_article/' . $article->articleid); ?>"
                                 class="btn btn-danger _delete pull-right mright5"><?php echo _l('delete'); ?></a>
                             <?php } ?>
@@ -53,7 +54,7 @@
                                 echo render_input('slug', 'kb_article_slug', $article->slug, 'text');
                             } ?>
                         <?php $value = (isset($article) ? $article->articlegroup : ''); ?>
-                        <?php if (staff_can('create',  'knowledge_base')) {
+                        <?php if (has_permission('knowledge_base', '', 'create')) {
                                 echo render_select_with_input_group('articlegroup', get_kb_groups(), ['groupid', 'name'], 'kb_article_add_edit_group', $value, '<div class="input-group-btn"><a href="#" class="btn btn-default" onclick="new_kb_group();return false;"><i class="fa fa-plus"></i></a></div>');
                             } else {
                                 echo render_select('articlegroup', get_kb_groups(), ['groupid', 'name'], 'kb_article_add_edit_group', $value);
@@ -77,7 +78,7 @@
                      } ?>
                         <?php echo render_textarea('description', '', $contents, [], [], '', 'tinymce tinymce-manual'); ?>
                     </div>
-                    <?php if ((staff_can('create',  'knowledge_base') && !isset($article)) || staff_can('edit',  'knowledge_base') && isset($article)) { ?>
+                    <?php if ((has_permission('knowledge_base', '', 'create') && !isset($article)) || has_permission('knowledge_base', '', 'edit') && isset($article)) { ?>
                     <div class="panel-footer text-right">
                         <button type="submit" class="btn btn-primary">
                             <?php echo _l('submit'); ?>
@@ -96,9 +97,8 @@
 <script>
 $(function() {
     init_editor('#description', {
-        toolbar_sticky : true,
+        append_plugins: 'stickytoolbar'
     });
-    
     appValidateForm($('#article-form'), {
         subject: 'required',
         articlegroup: 'required'

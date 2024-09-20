@@ -379,11 +379,6 @@ class CI_Image_lib {
 	 */
 	public $wm_use_truetype	= FALSE;
 
-    /**
-     * @var mixed
-     */
-    private $dest_image;
-
 	/**
 	 * Initialize Image Library
 	 *
