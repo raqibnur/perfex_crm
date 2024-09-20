@@ -17,7 +17,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 * environments.
 *
 */
-define('APP_BASE_URL', 'https://app.therundigital.net/');
+define('APP_BASE_URL', 'https://trd-crm-perfex-crm.ldqgmg.easypanel.host/');
 
 /*
 * --------------------------------------------------------------------------
