@@ -50,7 +50,7 @@ define('APP_DB_PASSWORD', '4cJfis34Lh67#ndN');
 /**
  * The name of the database you want to connect to
  */
-define('APP_DB_NAME', 'trd-crm');
+define('APP_DB_NAME', 'perfedCms');
 
 /**
  * @since  2.3.0
